@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowUpRight, CalendarDays, CheckCircle2, ChevronDown, Clock3, Package, RefreshCw, ShoppingBag } from "lucide-react";
+import { ArrowUpRight, CalendarDays, ChevronDown, Clock3, Package, RefreshCw, ShoppingBag, Trash2, X } from "lucide-react";
 import { orderapi } from "../../api";
 
 const statusCopy = { Pending: "Order received", Preparing: "Being prepared", Ready: "Ready for pickup", Collected: "Collected", Cancelled: "Cancelled" };
@@ -34,6 +34,8 @@ export default function MyOrders() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [expanded, setExpanded] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null);
+  const [deleting, setDeleting] = useState(null);
 
   const loadOrders = async () => {
     setLoading(true);
@@ -50,6 +52,21 @@ export default function MyOrders() {
   };
 
   useEffect(() => { loadOrders(); }, []);
+
+  const removeOrder = async (orderId) => {
+    setDeleting(orderId);
+    setError("");
+    try {
+      await orderapi.remove(orderId);
+      setOrders((current) => current.filter((order) => order.order_id !== orderId));
+      setConfirmDelete(null);
+      setExpanded((current) => current === orderId ? null : current);
+    } catch (err) {
+      setError(err.message || "Unable to delete this order.");
+    } finally {
+      setDeleting(null);
+    }
+  };
 
   return (
     <main className="app-page orders-page">
@@ -72,13 +89,19 @@ export default function MyOrders() {
               const total = Number(order.total_amount ?? order.total ?? 0);
               const progress = statusProgress[status] || 1;
               const isOpen = expanded === order.order_id;
+              const isConfirming = confirmDelete === order.order_id;
               return (
-                <motion.article layout className={`order-card order-card-${status.toLowerCase()}`} key={order.order_id} initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * .06, type: "spring", stiffness: 220, damping: 22 }}>
+                <motion.article layout className={`order-card order-card-${status.toLowerCase()}`} key={order.order_id} initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -18, scale: .96 }} transition={{ delay: index * .06, type: "spring", stiffness: 220, damping: 22 }}>
                   <div className="order-card-index">{String(index + 1).padStart(2, "0")}</div>
                   <div className="order-card-main">
                     <div className="order-card-top">
                       <div><span className="order-label">ORDER #{order.order_id}</span><h2>{formatCreated(order.created_at || order.order_date)}</h2></div>
-                      <motion.div className={`order-status ${status.toLowerCase()}`} whileTap={{ scale: .96 }}><Clock3 size={17} /><span>{statusCopy[status] || status}</span></motion.div>
+                      <div className="order-card-actions">
+                        <AnimatePresence mode="wait" initial={false}>
+                          {isConfirming ? <motion.div className="order-delete-confirm" initial={{ opacity: 0, scale: .94 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: .94 }}><span>Delete this order?</span><button type="button" onClick={() => removeOrder(order.order_id)} disabled={deleting === order.order_id}>{deleting === order.order_id ? "Deleting…" : "Delete"}</button><button type="button" onClick={() => setConfirmDelete(null)} aria-label="Cancel delete"><X size={15} /></button></motion.div> : <motion.button type="button" className="order-delete-button" onClick={() => setConfirmDelete(order.order_id)} whileHover={{ y: -2 }} whileTap={{ scale: .94 }} aria-label={`Delete order ${order.order_id}`}><Trash2 size={16} /></motion.button>}
+                        </AnimatePresence>
+                        <motion.div className={`order-status ${status.toLowerCase()}`} whileTap={{ scale: .96 }}><Clock3 size={17} /><span>{statusCopy[status] || status}</span></motion.div>
+                      </div>
                     </div>
                     <div className="order-progress-rail"><motion.div initial={{ width: 0 }} animate={{ width: `${Math.min(progress, 4) / 4 * 100}%` }} transition={{ duration: .7, delay: .15 }} /><span className={progress >= 1 ? "on" : ""}>Received</span><span className={progress >= 2 ? "on" : ""}>Preparing</span><span className={progress >= 3 ? "on" : ""}>Ready</span><span className={progress >= 4 ? "on" : ""}>Collected</span></div>
                     <div className="order-pickup"><div className="order-pickup-icon"><CalendarDays size={19} /></div><div><span>Pickup</span><strong>{formatPickup(order.pickup_slot)}</strong></div></div>
