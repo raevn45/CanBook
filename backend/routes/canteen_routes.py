@@ -48,14 +48,19 @@ def dashboard():
 @canteen.get("/analytics")
 @role_required("canteen")
 def analytics():
-    summary = fetch_one("""
+    order_summary = fetch_one("""
         SELECT
-            COUNT(DISTINCT o.order_id) AS total_orders,
-            COUNT(DISTINCT o.user_id) AS total_students,
-            COALESCE(SUM(oi.quantity), 0) AS total_items,
-            COALESCE(SUM(o.total_amount), 0) AS total_revenue
-        FROM orders o
-        LEFT JOIN order_items oi ON o.order_id = oi.order_id
+            COUNT(*) AS total_orders,
+            COUNT(DISTINCT user_id) AS total_students,
+            COALESCE(SUM(total_amount), 0) AS total_revenue
+        FROM orders
+        WHERE status != 'Cancelled'
+    """)
+
+    item_summary = fetch_one("""
+        SELECT COALESCE(SUM(oi.quantity), 0) AS total_items
+        FROM order_items oi
+        JOIN orders o ON oi.order_id = o.order_id
         WHERE o.status != 'Cancelled'
     """)
 
@@ -89,10 +94,10 @@ def analytics():
 
     return jsonify({
         "summary": {
-            "total_orders": int(summary["total_orders"] or 0),
-            "total_students": int(summary["total_students"] or 0),
-            "total_items": int(summary["total_items"] or 0),
-            "total_revenue": float(summary["total_revenue"] or 0)
+            "total_orders": int(order_summary["total_orders"] or 0),
+            "total_students": int(order_summary["total_students"] or 0),
+            "total_items": int(item_summary["total_items"] or 0),
+            "total_revenue": float(order_summary["total_revenue"] or 0)
         },
         "demand": demand,
         "daily": daily
@@ -135,12 +140,7 @@ def create_menu_item():
     if price < 0:
         return jsonify({"error": "price must be non-negative"}), 400
 
-    item_id = add_item(
-        name,
-        str(data.get("description", "")).strip(),
-        category,
-        price
-    )
+    item_id = add_item(name, str(data.get("description", "")).strip(), category, price)
     return jsonify({"message": "item created", "item_id": item_id}), 201
 
 
