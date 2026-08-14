@@ -42,11 +42,8 @@ export default function Menu() {
         <div><span className="micro-label"><Sparkles size={13} /> CANBOOK / LIVE MENU</span><h1>Pick your <em>fuel.</em></h1><p>Chicken Manchurian, Puff, Chai Cake and the rest of the actual school menu. Prices are in AED.</p></div>
         <Link to="/cart" className="floating-cart"><ShoppingBag size={18} /><span>Cart</span><b>{count}</b></Link>
       </header>
-
       <div className="menu-toolbar"><div className="category-pills">{categories.map((item) => <button key={item} className={category === item ? "active" : ""} onClick={() => setCategory(item)}>{item}</button>)}</div><label className="search-box"><Search size={17} /><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search lunch…" /></label></div>
-
       {loading ? <div className="loading-card">Loading today's menu…</div> : <motion.div layout className="live-menu-grid">{filtered.map((item, index) => <motion.article layout key={item.item_id} className="live-menu-card" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(index * 0.045, 0.35), layout: { duration: 0.35 } }}><div className="menu-card-top"><span>{String(index + 1).padStart(2, "0")}</span><small>{item.category || "canteen"}</small></div><div className="food-mark">{String(item.item_name).slice(0, 1)}</div><h2>{item.item_name}</h2><p>{item.description || "Freshly prepared at the school canteen."}</p><div className="live-menu-bottom"><strong>AED {Number(item.price).toFixed(2)}</strong><button onClick={() => addToCart(item)} disabled={item.available === false}>Add <ArrowUpRight size={16} /></button></div></motion.article>)}</motion.div>}
-
       {!loading && !filtered.length && <div className="empty-state-card"><h2>Nothing on that shelf.</h2><p>Try another search or switch categories.</p></div>}
     </main>
   );
