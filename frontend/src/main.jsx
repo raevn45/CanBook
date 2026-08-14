@@ -9,6 +9,7 @@ import "./styles/interactions.css";
 import "./styles/motionui.css";
 import "./styles/staffui.css";
 import "./styles/refinements.css";
+import "./styles/navbarfix.css";
 
 if ("serviceWorker" in navigator && import.meta.env.PROD) {
   window.addEventListener("load", () => {
