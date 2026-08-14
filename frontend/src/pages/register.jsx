@@ -1,83 +1,181 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/authcontext";
+import { ArrowRight, Check } from "lucide-react";
 
 export default function Register() {
   const navigate = useNavigate();
-  const { register } = useAuth();
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+
+    setForm((current) => ({
+      ...current,
+      [name]: value,
+    }));
+
     setError("");
-    setLoading(true);
-    try {
-      await register(name, email, password);
-      navigate("/login");
-    } catch (err) {
-      setError(err.message || "registration failed. try again.");
-    } finally {
-      setLoading(false);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    if (form.password !== form.confirmPassword) {
+      setError("Passwords do not match.");
+      return;
     }
+
+    if (form.password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+
+    const user = {
+      name: form.name.trim(),
+      email: form.email.trim(),
+    };
+
+    localStorage.setItem("canbook_user", JSON.stringify(user));
+
+    navigate("/order");
   };
 
   return (
-    <div className="auth-page">
-      <div className="auth-card">
-        <div className="pixel-label">new student account</div>
-        <h1>join canbook.</h1>
-        <p>create your student account.</p>
+    <main className="auth-page">
+      <div className="auth-background auth-background-one" />
+      <div className="auth-background auth-background-two" />
 
-        {error && <div className="error-box">{error}</div>}
+      <nav className="auth-nav">
+        <Link to="/" className="auth-logo">
+          CAN<span>BOOK</span>
+        </Link>
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          <label>
-            name
-            <input
-              placeholder="your name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-          </label>
+        <Link to="/" className="auth-back">
+          Back home
+        </Link>
+      </nav>
 
-          <label>
-            email
-            <input
-              type="email"
-              placeholder="you@school.edu"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </label>
+      <section className="register-layout">
+        <div className="register-intro">
+          <p className="eyebrow">GIIS CANTEEN / CANBOOK</p>
 
-          <label>
-            password
-            <input
-              type="password"
-              placeholder="min. 6 characters"
-              minLength="6"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </label>
+          <h1>
+            Your lunch
+            <br />
+            starts <span>here.</span>
+          </h1>
 
-          <button className="pixel-button" disabled={loading}>
-            {loading ? "creating..." : "create account →"}
-          </button>
-        </form>
+          <p className="register-description">
+            Create your CanBook account once. Then browse the canteen menu,
+            build your order, and pick it up when it's ready.
+          </p>
 
-        <p className="auth-footer">
-          already registered? <Link to="/login">sign in</Link>
-        </p>
-      </div>
-    </div>
+          <div className="register-perks">
+            <div>
+              <span>
+                <Check size={15} />
+              </span>
+              <p>See the current canteen menu</p>
+            </div>
+
+            <div>
+              <span>
+                <Check size={15} />
+              </span>
+              <p>Order before you reach the canteen</p>
+            </div>
+
+            <div>
+              <span>
+                <Check size={15} />
+              </span>
+              <p>Spend less time waiting in line</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="auth-card register-card">
+          <div className="auth-card-heading">
+            <p className="eyebrow">GET STARTED</p>
+            <h2>Create your account.</h2>
+            <p>It only takes a minute.</p>
+          </div>
+
+          <form onSubmit={handleSubmit}>
+            <label>
+              Full name
+              <input
+                name="name"
+                type="text"
+                value={form.name}
+                onChange={handleChange}
+                placeholder="Enter your name"
+                autoComplete="name"
+                required
+              />
+            </label>
+
+            <label>
+              Email address
+              <input
+                name="email"
+                type="email"
+                value={form.email}
+                onChange={handleChange}
+                placeholder="you@example.com"
+                autoComplete="email"
+                required
+              />
+            </label>
+
+            <label>
+              Password
+              <input
+                name="password"
+                type="password"
+                value={form.password}
+                onChange={handleChange}
+                placeholder="At least 6 characters"
+                autoComplete="new-password"
+                required
+              />
+            </label>
+
+            <label>
+              Confirm password
+              <input
+                name="confirmPassword"
+                type="password"
+                value={form.confirmPassword}
+                onChange={handleChange}
+                placeholder="Enter your password again"
+                autoComplete="new-password"
+                required
+              />
+            </label>
+
+            {error && <p className="form-error">{error}</p>}
+
+            <button type="submit" className="btn-primary auth-submit">
+              Continue to menu
+              <ArrowRight size={18} />
+            </button>
+          </form>
+
+          <p className="auth-switch">
+            Already have an account?{" "}
+            <Link to="/login">Log in</Link>
+          </p>
+        </div>
+      </section>
+    </main>
   );
 }
