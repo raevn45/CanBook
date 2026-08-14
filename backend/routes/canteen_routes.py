@@ -21,8 +21,25 @@ def _today_orders():
         FROM orders o
         JOIN users u ON o.user_id = u.user_id
         WHERE o.order_date = CURDATE()
-        ORDER BY o.order_id DESC
+          AND o.status NOT IN ('Collected', 'Cancelled')
+        ORDER BY
+            CASE o.status
+                WHEN 'Pending' THEN 1
+                WHEN 'Preparing' THEN 2
+                WHEN 'Ready' THEN 3
+                ELSE 4
+            END,
+            o.order_id DESC
     """)
+
+
+def _completed_today():
+    row = fetch_one("""
+        SELECT COUNT(*) AS total
+        FROM orders
+        WHERE order_date = CURDATE() AND status = 'Collected'
+    """)
+    return int(row["total"] or 0)
 
 
 @canteen.get("/dashboard")
@@ -53,14 +70,15 @@ def dashboard():
         "revenue": float(revenue or 0),
         "demand": demand,
         "orders": _today_orders(),
+        "completed_today": _completed_today(),
     })
 
 
 @canteen.get("/orders")
 @role_required("canteen")
 def orders_queue():
-    """Return today's kitchen queue for staff clients."""
-    return jsonify({"orders": _today_orders()})
+    """Return today's active kitchen queue for staff clients."""
+    return jsonify({"orders": _today_orders(), "completed_today": _completed_today()})
 
 
 @canteen.get("/analytics")
@@ -130,8 +148,9 @@ def update_order(order_id):
     allowed = ["Pending", "Preparing", "Ready", "Collected", "Cancelled"]
     if status not in allowed:
         return jsonify({"error": "invalid status"}), 400
+
     execute_query("UPDATE orders SET status = %s WHERE order_id = %s", (status, order_id))
-    return jsonify({"message": "order updated"})
+    return jsonify({"message": "order updated", "status": status})
 
 
 @canteen.get("/menu")
