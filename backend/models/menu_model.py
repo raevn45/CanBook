@@ -14,7 +14,7 @@ def get_all_items():
     return fetch_all("""
         SELECT *
         FROM menu
-        ORDER BY category, item_name
+        ORDER BY available DESC, category, item_name
     """)
 
 
