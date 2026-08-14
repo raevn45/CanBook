@@ -1,5 +1,7 @@
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "/api").replace(/\/$/, "");
+
 const api = async (endpoint, options = {}) => {
-  const response = await fetch(`/api${endpoint}`, {
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
@@ -18,7 +20,7 @@ const api = async (endpoint, options = {}) => {
     const cleanText = text.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
     throw new Error(
       response.status === 404
-        ? `CanBook API route not found: ${endpoint}. Restart the Flask backend and make sure it is running on port 5000.`
+        ? `CanBook API route not found: ${endpoint}. Check the Flask backend URL and make sure it is running.`
         : `CanBook API returned ${response.status} instead of JSON${cleanText ? `: ${cleanText.slice(0, 140)}` : "."}`
     );
   }
