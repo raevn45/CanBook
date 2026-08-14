@@ -1,124 +1,67 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, Lock, Mail } from "lucide-react";
+import { ArrowRight, Lock, Mail, Sparkles } from "lucide-react";
+import { useAuth } from "../context/authcontext";
 
 export default function Login() {
   const navigate = useNavigate();
-
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
+    setLoading(true);
 
-    if (!email.trim() || !password.trim()) {
-      setError("Please enter your email and password.");
-      return;
+    try {
+      const data = await login(email.trim(), password);
+      navigate(data.user.role === "canteen" ? "/canteen" : "/student");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-
-    if (
-      email.trim().toLowerCase() === "canteen@canbook.com" &&
-      password === "giiscanteen"
-    ) {
-      localStorage.setItem(
-        "canbook_user",
-        JSON.stringify({
-          email: email.trim().toLowerCase(),
-          role: "canteen",
-          loggedIn: true,
-        })
-      );
-
-      navigate("/canteen/dashboard");
-      return;
-    }
-
-    localStorage.setItem(
-      "canbook_user",
-      JSON.stringify({
-        email: email.trim().toLowerCase(),
-        role: "student",
-        loggedIn: true,
-      })
-    );
-
-    navigate("/student");
   };
 
   return (
     <main className="auth-page">
-      <div className="auth-decoration auth-decoration-one" />
-      <div className="auth-decoration auth-decoration-two" />
+      <div className="auth-glow auth-glow-a" />
+      <div className="auth-glow auth-glow-b" />
+      <Link to="/" className="auth-brand">CAN<span>BOOK</span></Link>
 
-      <section className="auth-card">
-        <div className="auth-card-top">
-          <Link to="/" className="auth-logo">
-            CANBOOK<span>.</span>
-          </Link>
-
-          <p className="eyebrow">CANBOOK / LOGIN</p>
+      <section className="auth-layout">
+        <div className="auth-intro">
+          <div className="eyebrow"><Sparkles size={14} /> CANTEEN ACCESS</div>
+          <h1>Welcome<br /><em>back.</em></h1>
+          <p>Sign in and get straight to the food. Your next lunch is closer than you think.</p>
+          <div className="auth-note">LIVE MENU <span /> REAL PICKUP SLOTS <span /> AED PRICING</div>
         </div>
 
-        <div className="auth-heading">
-          <h1>
-            Welcome
-            <br />
-            <span>back.</span>
-          </h1>
+        <section className="auth-card">
+          <div className="auth-card-heading">
+            <span>CANBOOK / LOGIN</span>
+            <h2>Let's get you fed.</h2>
+            <p>Use the account you created for CanBook.</p>
+          </div>
 
-          <p>
-            Log in to order from the canteen and keep track of your orders.
-          </p>
-        </div>
+          <form onSubmit={handleSubmit} className="auth-form">
+            <label>
+              Email
+              <div className="input-wrap"><Mail size={18} /><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" autoComplete="email" required /></div>
+            </label>
+            <label>
+              Password
+              <div className="input-wrap"><Lock size={18} /><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Your password" autoComplete="current-password" required /></div>
+            </label>
+            {error && <div className="form-error">{error}</div>}
+            <button className="hero-primary auth-submit" disabled={loading}>{loading ? "Signing you in..." : "Enter CanBook"}<ArrowRight size={18} /></button>
+          </form>
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          <label>
-            <span>Email</span>
-
-            <div className="input-wrap">
-              <Mail size={18} />
-
-              <input
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="you@example.com"
-                autoComplete="email"
-              />
-            </div>
-          </label>
-
-          <label>
-            <span>Password</span>
-
-            <div className="input-wrap">
-              <Lock size={18} />
-
-              <input
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                placeholder="Enter your password"
-                autoComplete="current-password"
-              />
-            </div>
-          </label>
-
-          {error && <p className="auth-error">{error}</p>}
-
-          <button type="submit" className="btn-primary auth-submit">
-            Log in
-            <ArrowRight size={18} />
-          </button>
-        </form>
-
-        <div className="auth-footer">
-          <span>New to CanBook?</span>
-
-          <Link to="/register">Create an account</Link>
-        </div>
+          <p className="auth-switch">New here? <Link to="/register">Create an account</Link></p>
+        </section>
       </section>
     </main>
   );
