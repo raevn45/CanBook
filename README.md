@@ -9,8 +9,9 @@ CanBook is a school canteen pre-ordering system built around a React + Vite stud
 - **Database:** MySQL / MySQL Connector
 - **Authentication:** Flask session cookies with student/canteen roles
 - **PWA:** Web app manifest + service worker for installable mobile/desktop app behavior
+- **Hosted API proxy:** Cloudflare Pages Function forwards `/api/*` to the Flask service, keeping browser auth same-origin
 
-The existing Flask routes and order payload contract are preserved. The checkout continues to send `pickup_slot` plus `items`, while the frontend API base can be configured for local or hosted deployments.
+The existing Flask routes and order payload contract are preserved. Checkout continues to send `pickup_slot` plus `items`.
 
 ## Student experience
 
@@ -59,19 +60,19 @@ Vite listens on port 5173 and proxies `/api` to Flask during local development.
 
 The recommended no-cost stack for this MySQL-based architecture is:
 
-1. **Cloudflare Pages** for the Vite frontend.
+1. **Cloudflare Pages** for the Vite frontend and same-origin `/api/*` proxy.
 2. **Render Free Web Service** for Flask/Gunicorn.
 3. **Aiven Free MySQL** for the persistent MySQL database.
 
 Cloudflare Pages uses `npm run build` with `dist` as the output directory. Render uses `backend/` as the service root, `pip install -r requirements.txt` as the build command, and `gunicorn app:app` as the start command.
 
-For Cloudflare Pages, set:
+On Cloudflare Pages, set the Functions environment variable:
 
 ```text
-VITE_API_BASE_URL=https://YOUR-CANBOOK-API.onrender.com/api
+CANBOOK_API_ORIGIN=https://YOUR-CANBOOK-API.onrender.com
 ```
 
-For Render, set `APP_ENV=production`, `FRONTEND_ORIGIN` to the exact Cloudflare Pages origin, and the five MySQL/session variables shown in `backend/.env.example`.
+Leave `VITE_API_BASE_URL` unset for the hosted build so the browser calls the same-origin `/api` proxy. For Render, set `APP_ENV=production`, `FRONTEND_ORIGIN` to the exact Cloudflare Pages origin, and the five MySQL/session variables shown in `backend/.env.example`.
 
 Create the Aiven MySQL service first, then run `init_db.py` once locally against that hosted database to create the tables, staff account, and canonical nine-item menu.
 
