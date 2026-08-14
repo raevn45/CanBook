@@ -12,5 +12,9 @@ export default function ProtectedRoute({ children }) {
     return <Navigate to="/login" replace />;
   }
 
+  if (user.role === "canteen") {
+    return <Navigate to="/canteen" replace />;
+  }
+
   return children;
 }
