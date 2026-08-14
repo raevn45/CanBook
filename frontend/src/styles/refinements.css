@@ -10,6 +10,9 @@
 .order-progress-rail > span { z-index: 2; }
 .staff-empty { min-height: 160px; display: grid; place-items: center; align-content: center; gap: 9px; color: var(--muted); text-align: center; font: 10px var(--mono); }
 .staff-empty svg { color: var(--coral); }
+.category-pills button { z-index: 0; }
+.category-pill-highlight { z-index: 0 !important; }
+.category-pills button > span:not(.category-pill-highlight) { position: relative; z-index: 1; }
 @media (max-width: 760px) {
   .analytics-view-switch { width: fit-content; }
   .analytics-view-switch button { padding-inline: 10px; }
