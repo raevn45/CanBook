@@ -6,6 +6,25 @@ from utils.auth_utils import role_required
 canteen = Blueprint("canteen", __name__)
 
 
+def _today_orders():
+    return fetch_all("""
+        SELECT
+            o.order_id,
+            o.user_id,
+            u.name,
+            u.email,
+            o.pickup_slot,
+            o.total_amount,
+            o.status,
+            o.order_date,
+            o.created_at
+        FROM orders o
+        JOIN users u ON o.user_id = u.user_id
+        WHERE o.order_date = CURDATE()
+        ORDER BY o.order_id DESC
+    """)
+
+
 @canteen.get("/dashboard")
 @role_required("canteen")
 def dashboard():
@@ -29,20 +48,19 @@ def dashboard():
         ORDER BY quantity DESC
     """)
 
-    recent_orders = fetch_all("""
-        SELECT o.order_id, u.name, o.pickup_slot, o.total_amount, o.status
-        FROM orders o
-        JOIN users u ON o.user_id = u.user_id
-        WHERE o.order_date = CURDATE()
-        ORDER BY o.order_id DESC
-    """)
-
     return jsonify({
-        "total_orders": total_orders,
-        "revenue": float(revenue),
+        "total_orders": int(total_orders or 0),
+        "revenue": float(revenue or 0),
         "demand": demand,
-        "orders": recent_orders
+        "orders": _today_orders(),
     })
+
+
+@canteen.get("/orders")
+@role_required("canteen")
+def orders_queue():
+    """Return today's kitchen queue for staff clients."""
+    return jsonify({"orders": _today_orders()})
 
 
 @canteen.get("/analytics")
@@ -97,10 +115,10 @@ def analytics():
             "total_orders": int(order_summary["total_orders"] or 0),
             "total_students": int(order_summary["total_students"] or 0),
             "total_items": int(item_summary["total_items"] or 0),
-            "total_revenue": float(order_summary["total_revenue"] or 0)
+            "total_revenue": float(order_summary["total_revenue"] or 0),
         },
         "demand": demand,
-        "daily": daily
+        "daily": daily,
     })
 
 
