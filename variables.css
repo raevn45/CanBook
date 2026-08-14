@@ -1,0 +1,17 @@
+:root {
+  --night: #07111f;
+  --deep-blue: #0b1f38;
+  --blue: #1769ff;
+  --cyan: #35e7ff;
+  --aqua: #72f6d4;
+  --lime: #c7ff5e;
+  --white: #f4fbff;
+  --muted: #91a7bd;
+  --glass: rgba(13, 37, 61, 0.72);
+  --glass-light: rgba(255, 255, 255, 0.08);
+  --border: rgba(114, 246, 212, 0.18);
+  --danger: #ff6b8a;
+  --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  --pixel-font: "Courier New", monospace;
+  --radius: 18px;
+}
