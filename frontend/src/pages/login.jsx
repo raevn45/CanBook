@@ -1,123 +1,82 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, Lock, Mail } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { ArrowUpRight, LockKeyhole, Mail, Sparkles } from "lucide-react";
+import { useAuth } from "../context/authcontext";
 
 export default function Login() {
   const navigate = useNavigate();
-
+  const location = useLocation();
+  const { user, login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (event) => {
+  useEffect(() => {
+    if (user) navigate(user.role === "canteen" ? "/canteen" : "/student", { replace: true });
+  }, [user, navigate]);
+
+  const submit = async (event) => {
     event.preventDefault();
     setError("");
+    setLoading(true);
 
-    if (!email.trim() || !password.trim()) {
-      setError("Please enter your email and password.");
-      return;
+    try {
+      const data = await login(email.trim(), password);
+      navigate(data.user.role === "canteen" ? "/canteen" : "/student", { replace: true });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-
-    if (
-      email.trim().toLowerCase() === "canteen@canbook.com" &&
-      password === "giiscanteen"
-    ) {
-      localStorage.setItem(
-        "canbook_user",
-        JSON.stringify({
-          email: email.trim().toLowerCase(),
-          role: "canteen",
-          loggedIn: true,
-        })
-      );
-
-      navigate("/canteen/dashboard");
-      return;
-    }
-
-    localStorage.setItem(
-      "canbook_user",
-      JSON.stringify({
-        email: email.trim().toLowerCase(),
-        role: "student",
-        loggedIn: true,
-      })
-    );
-
-    navigate("/student");
   };
 
   return (
-    <main className="auth-page">
-      <div className="auth-decoration auth-decoration-one" />
-      <div className="auth-decoration auth-decoration-two" />
+    <main className="auth-shell">
+      <div className="auth-orbit orbit-one" />
+      <div className="auth-orbit orbit-two" />
+      <div className="auth-noise" />
 
-      <section className="auth-card">
-        <div className="auth-card-top">
-          <Link to="/" className="auth-logo">
-            CANBOOK<span>.</span>
-          </Link>
+      <Link to="/" className="floating-brand">CAN<span>BOOK</span></Link>
 
-          <p className="eyebrow">CANBOOK / LOGIN</p>
+      <section className="auth-layout">
+        <div className="auth-story">
+          <p className="kicker"><Sparkles size={15} /> SCHOOL CANTEEN / 2026</p>
+          <h1>Back to the <em>good stuff.</em></h1>
+          <p className="auth-lede">Your canteen, your cart, your pickup time. Everything stays in one place.</p>
+          <div className="auth-marquee"><span>NO QUEUE</span><b>•</b><span>FRESH FOOD</span><b>•</b><span>SMART PICKUP</span></div>
         </div>
 
-        <div className="auth-heading">
-          <h1>
-            Welcome
-            <br />
-            <span>back.</span>
-          </h1>
-
-          <p>
-            Log in to order from the canteen and keep track of your orders.
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="auth-form">
-          <label>
-            <span>Email</span>
-
-            <div className="input-wrap">
-              <Mail size={18} />
-
-              <input
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="you@example.com"
-                autoComplete="email"
-              />
+        <div className="auth-panel">
+          <div className="auth-panel-top">
+            <div>
+              <span className="micro-label">CANBOOK / LOGIN</span>
+              <h2>Welcome back.</h2>
             </div>
-          </label>
+            <div className="auth-index">01 / 02</div>
+          </div>
 
-          <label>
-            <span>Password</span>
+          {location.state?.registered && <div className="success-note">Account created. Log in to start ordering.</div>}
 
-            <div className="input-wrap">
-              <Lock size={18} />
+          <form onSubmit={submit} className="auth-form">
+            <label>
+              <span>Email</span>
+              <div className="field-shell"><Mail size={18} /><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@school.com" autoComplete="email" required /></div>
+            </label>
+            <label>
+              <span>Password</span>
+              <div className="field-shell"><LockKeyhole size={18} /><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Your password" autoComplete="current-password" required /></div>
+            </label>
 
-              <input
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                placeholder="Enter your password"
-                autoComplete="current-password"
-              />
-            </div>
-          </label>
+            {error && <div className="form-error">{error}</div>}
 
-          {error && <p className="auth-error">{error}</p>}
+            <button className="giant-submit" type="submit" disabled={loading}>
+              <span>{loading ? "Signing in…" : "Enter CanBook"}</span>
+              <ArrowUpRight size={22} />
+            </button>
+          </form>
 
-          <button type="submit" className="btn-primary auth-submit">
-            Log in
-            <ArrowRight size={18} />
-          </button>
-        </form>
-
-        <div className="auth-footer">
-          <span>New to CanBook?</span>
-
-          <Link to="/register">Create an account</Link>
+          <div className="auth-bottom"><span>New here?</span><Link to="/register">Create an account <ArrowUpRight size={15} /></Link></div>
         </div>
       </section>
     </main>
