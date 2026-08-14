@@ -1,52 +1,78 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
-import { ArrowUpRight, Home, LogOut, ShoppingBag } from "lucide-react";
+import { BarChart3, ClipboardList, Home, LogOut, Menu as MenuIcon, ShoppingBag, UtensilsCrossed } from "lucide-react";
 import { useAuth } from "../../context/authcontext";
 import { useCart } from "../../context/cartcontext";
+
+const studentLinks = [
+  { to: "/student", label: "Dashboard", icon: Home },
+  { to: "/menu", label: "Menu", icon: MenuIcon },
+  { to: "/orders", label: "Orders", icon: ClipboardList },
+  { to: "/cart", label: "Cart", icon: ShoppingBag },
+];
+
+const staffLinks = [
+  { to: "/canteen", label: "Dashboard", icon: Home },
+  { to: "/canteen/orders", label: "Orders", icon: ClipboardList },
+  { to: "/canteen/analytics", label: "Analytics", icon: BarChart3 },
+  { to: "/canteen/menu", label: "Menu", icon: UtensilsCrossed },
+];
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const { count } = useCart();
   const navigate = useNavigate();
+  const location = useLocation();
+  const links = user?.role === "canteen" ? staffLinks : studentLinks;
 
   const handleLogout = async () => {
     await logout();
-    navigate("/login");
+    navigate("/login", { replace: true });
   };
 
   return (
-    <motion.header
-      className="navbar interactive-navbar"
-      initial={{ y: -80, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6 }}
-    >
-      <Link to="/" className="brand brand-home-button" aria-label="CanBook home" title="Back to CanBook home">
-        <span className="brand-mark"><span>C</span><b>B</b></span>
-        <span className="brand-home-label"><Home size={13} /> home</span>
-      </Link>
+    <>
+      <motion.header
+        className="navbar interactive-navbar"
+        initial={{ y: -70, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 260, damping: 24 }}
+      >
+        <Link to="/" className="brand brand-home-button" aria-label="CanBook home" title="CanBook home">
+          <motion.span className="brand-mark" whileHover={{ rotate: 6, scale: 1.08 }} whileTap={{ scale: 0.92 }}>
+            <span>C</span><b>B</b>
+          </motion.span>
+        </Link>
 
-      <nav className="desktop-nav">
-        {user?.role === "student" && (
-          <>
-            <Link to="/student">dashboard</Link>
-            <Link to="/menu">menu</Link>
-            <Link to="/orders">orders</Link>
-            <Link to="/cart" className="nav-cart-link"><ShoppingBag size={14} /> cart {count > 0 && <span className="cart-count">{count}</span>}</Link>
-            <button className="nav-logout" onClick={handleLogout}><LogOut size={14} /> logout</button>
-          </>
-        )}
+        <nav className="desktop-nav" aria-label="Primary navigation">
+          {links.map(({ to, label, icon: Icon }) => (
+            <Link key={to} to={to} className={location.pathname === to ? "active" : ""}>
+              <Icon size={14} />
+              <span>{label.toLowerCase()}</span>
+              {label === "Cart" && count > 0 && <span className="cart-count">{count}</span>}
+            </Link>
+          ))}
+          <motion.button className="nav-logout" onClick={handleLogout} whileHover={{ y: -2 }} whileTap={{ scale: 0.95 }} title="Sign out">
+            <LogOut size={15} />
+            <span>logout</span>
+          </motion.button>
+        </nav>
+      </motion.header>
 
-        {user?.role === "canteen" && (
-          <>
-            <Link to="/canteen">dashboard</Link>
-            <Link to="/canteen/orders">orders</Link>
-            <Link to="/canteen/analytics">analytics</Link>
-            <Link to="/canteen/menu">menu</Link>
-            <button className="nav-logout" onClick={handleLogout}><LogOut size={14} /> logout</button>
-          </>
-        )}
-      </nav>
-    </motion.header>
+      <motion.nav className="mobile-app-nav" initial={{ y: 80 }} animate={{ y: 0 }} transition={{ type: "spring", stiffness: 260, damping: 25 }} aria-label="Mobile navigation">
+        {links.map(({ to, label, icon: Icon }) => {
+          const active = location.pathname === to || (to !== "/student" && location.pathname.startsWith(`${to}/`));
+          return (
+            <Link key={to} to={to} className={active ? "active" : ""} aria-label={label}>
+              {active && <motion.span className="mobile-nav-active" layoutId="mobile-nav-active" />}
+              <Icon size={19} />
+              <span>{label}</span>
+              {label === "Cart" && count > 0 && <b>{count}</b>}
+            </Link>
+          );
+        })}
+        <button type="button" onClick={handleLogout} aria-label="Sign out"><LogOut size={19} /><span>Sign out</span></button>
+      </motion.nav>
+    </>
   );
 }
