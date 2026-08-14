@@ -17,6 +17,15 @@ DEFAULT_MENU = [
     ("Aalo Paratha", "Golden stuffed paratha with a hearty potato filling.", "meals", 10.00),
 ]
 
+LEGACY_MENU_NAMES = [
+    "chicken sandwich",
+    "veg sandwich",
+    "cheese pizza",
+    "french fries",
+    "fresh juice",
+    "chocolate cookie",
+]
+
 
 def create_database():
     connection_config = mysql_config.copy()
@@ -112,28 +121,38 @@ def create_canteen_account():
     connection.close()
 
 
-def insert_sample_menu():
+def seed_and_migrate_menu():
     connection = mysql.connector.connect(**mysql_config)
     cursor = connection.cursor()
-    cursor.execute("SELECT COUNT(*) FROM menu")
-    count = cursor.fetchone()[0]
 
-    if count == 0:
-        cursor.executemany("""
-            INSERT INTO menu (item_name, description, category, price)
-            VALUES (%s, %s, %s, %s)
-        """, DEFAULT_MENU)
-        connection.commit()
-        print("CanBook default menu inserted.")
-    else:
-        print("Menu already contains items; existing canteen-managed items were preserved.")
+    for legacy_name in LEGACY_MENU_NAMES:
+        cursor.execute(
+            "UPDATE menu SET available = FALSE WHERE LOWER(item_name) = %s",
+            (legacy_name,)
+        )
 
+    added = 0
+    for name, description, category, price in DEFAULT_MENU:
+        cursor.execute("SELECT item_id FROM menu WHERE LOWER(item_name) = LOWER(%s) LIMIT 1", (name,))
+        existing = cursor.fetchone()
+        if existing:
+            cursor.execute("UPDATE menu SET available = TRUE WHERE item_id = %s", (existing[0],))
+        else:
+            cursor.execute("""
+                INSERT INTO menu (item_name, description, category, price, available)
+                VALUES (%s, %s, %s, %s, TRUE)
+            """, (name, description, category, price))
+            added += 1
+
+    connection.commit()
     cursor.close()
     connection.close()
+    print(f"CanBook menu checked. Added {added} missing current item(s); legacy sample items were hidden without deleting history.")
 
 
 if __name__ == "__main__":
     create_database()
     create_tables()
     create_canteen_account()
-    insert_sample_menu()
+    seed_and_migrate_menu()
+    print("\ncanbook database setup complete.")
