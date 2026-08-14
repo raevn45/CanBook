@@ -2,7 +2,6 @@ import os
 
 from flask import Flask
 from flask_cors import CORS
-
 from config import secret_key
 from routes.auth_routes import auth
 from routes.menu_routes import menu
@@ -12,7 +11,13 @@ from routes.canteen_routes import canteen
 app = Flask(__name__)
 app.secret_key = secret_key or "canbook-dev-secret"
 
-is_production = os.getenv("APP_ENV", "development").lower() == "production"
+# Vercel sets VERCEL=1 automatically. This makes deployed sessions use
+# secure cross-origin cookies while keeping local development convenient.
+is_production = (
+    os.getenv("VERCEL") == "1"
+    or os.getenv("APP_ENV", "").lower() == "production"
+)
+
 allowed_origins = [
     origin.strip().rstrip("/")
     for origin in os.getenv(
@@ -27,6 +32,10 @@ app.config["SESSION_COOKIE_SAMESITE"] = "None" if is_production else "Lax"
 app.config["SESSION_COOKIE_SECURE"] = is_production
 app.config["SESSION_COOKIE_PATH"] = "/"
 
+# Avoid Flask's automatic 308 redirect from /api/menu -> /api/menu/
+# and /api/orders -> /api/orders/. Redirects break browser CORS preflight.
+app.url_map.strict_slashes = False
+
 CORS(app, supports_credentials=True, origins=allowed_origins)
 
 # Canonical API routes.
@@ -35,7 +44,7 @@ app.register_blueprint(menu, url_prefix="/api/menu")
 app.register_blueprint(orders, url_prefix="/api/orders")
 app.register_blueprint(canteen, url_prefix="/api/canteen")
 
-# Compatibility routes for the deployed frontend if its API base URL omits /api.
+# Compatibility routes for older deployed frontend builds.
 app.register_blueprint(auth, url_prefix="/auth", name="auth_legacy")
 app.register_blueprint(menu, url_prefix="/menu", name="menu_legacy")
 app.register_blueprint(orders, url_prefix="/orders", name="orders_legacy")
@@ -48,4 +57,8 @@ def health():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=not is_production, port=int(os.getenv("PORT", "5000")))
+    app.run(
+        host="0.0.0.0",
+        debug=not is_production,
+        port=int(os.getenv("PORT", "5000")),
+    )
