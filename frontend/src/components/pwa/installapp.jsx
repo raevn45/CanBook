@@ -19,8 +19,6 @@ export default function InstallApp() {
     };
   }, []);
 
-  if (installed) return null;
-
   const handleInstall = async () => {
     if (installEvent) {
       installEvent.prompt();
@@ -33,9 +31,9 @@ export default function InstallApp() {
 
   return (
     <>
-      <button className="install-app-button" type="button" onClick={handleInstall} title="Install CanBook">
+      <button className="install-app-button" type="button" onClick={handleInstall} title={installed ? "CanBook is installed" : "Install CanBook"}>
         {installEvent ? <Download size={13} /> : <Smartphone size={13} />}
-        <span>install app</span>
+        <span>{installed ? "app installed" : "install app"}</span>
       </button>
       {showHelp && (
         <div className="install-help-backdrop" role="presentation" onClick={() => setShowHelp(false)}>
@@ -43,8 +41,8 @@ export default function InstallApp() {
             <button className="install-help-close" type="button" onClick={() => setShowHelp(false)} aria-label="Close"><X size={18} /></button>
             <div className="install-help-icon"><Smartphone size={22} /></div>
             <p className="pixel-label">take canbook with you</p>
-            <h2 id="install-help-title">Add CanBook to your home screen.</h2>
-            <p className="install-help-copy">On iPhone or iPad, tap <strong>Share</strong> in Safari, then choose <strong>Add to Home Screen</strong>. On Android, use your browser menu and choose <strong>Install app</strong> or <strong>Add to Home screen</strong>.</p>
+            <h2 id="install-help-title">{installed ? "CanBook is already installed." : "Add CanBook to your home screen."}</h2>
+            <p className="install-help-copy">On iPhone or iPad, tap <strong>Share</strong> in Safari, then choose <strong>Add to Home Screen</strong>. On Android, use your browser menu and choose <strong>Install app</strong> or <strong>Add to Home screen</strong>. On desktop Chrome or Edge, use the install icon in the address bar or browser menu.</p>
             <button className="pixel-button install-help-done" type="button" onClick={() => setShowHelp(false)}>got it →</button>
           </section>
         </div>
