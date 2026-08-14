@@ -8,10 +8,23 @@ const api = async (endpoint, options = {}) => {
     ...options,
   });
 
-  const data = await response.json();
+  const contentType = response.headers.get("content-type") || "";
+  let data;
+
+  if (contentType.includes("application/json")) {
+    data = await response.json();
+  } else {
+    const text = await response.text();
+    const cleanText = text.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+    throw new Error(
+      response.status === 404
+        ? `CanBook API route not found: ${endpoint}. Restart the Flask backend and make sure it is running on port 5000.`
+        : `CanBook API returned ${response.status} instead of JSON${cleanText ? `: ${cleanText.slice(0, 140)}` : "."}`
+    );
+  }
 
   if (!response.ok) {
-    throw new Error(data.error || "Something went wrong.");
+    throw new Error(data?.error || "Something went wrong.");
   }
 
   return data;
