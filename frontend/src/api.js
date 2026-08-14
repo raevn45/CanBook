@@ -21,7 +21,9 @@ const api = async (endpoint, options = {}) => {
     const error = new Error(
       response.status === 404
         ? `CanBook API route not found: ${endpoint}. Check the Flask backend URL and make sure it is running.`
-        : `CanBook API returned ${response.status} instead of JSON${cleanText ? `: ${cleanText.slice(0, 140)}` : "."}`
+        : response.status === 405
+          ? `CanBook API method not allowed: ${endpoint}. Restart the Flask backend and make sure this branch is running.`
+          : `CanBook API returned ${response.status} instead of JSON${cleanText ? `: ${cleanText.slice(0, 140)}` : "."}`
     );
     error.status = response.status;
     throw error;
@@ -56,6 +58,7 @@ export const orderapi = {
 
 export const canteenapi = {
   dashboard: () => api("/canteen/dashboard"),
+  orders: () => api("/canteen/orders"),
   analytics: () => api("/canteen/analytics"),
   updateorder: (id, status) => api(`/canteen/orders/${id}`, { method: "PATCH", body: JSON.stringify({ status }) }),
   menu: () => api("/canteen/menu"),
