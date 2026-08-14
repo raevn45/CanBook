@@ -1,180 +1,54 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Check, Sparkles } from "lucide-react";
+import { useAuth } from "../context/authcontext";
 
 export default function Register() {
   const navigate = useNavigate();
-
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
-
+  const { register, login } = useAuth();
+  const [form, setForm] = useState({ name: "", email: "", password: "", confirmPassword: "" });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-
-    setForm((current) => ({
-      ...current,
-      [name]: value,
-    }));
-
-    setError("");
-  };
-
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-
-    if (form.password !== form.confirmPassword) {
-      setError("Passwords do not match.");
-      return;
+    setError("");
+    if (form.password !== form.confirmPassword) return setError("Passwords do not match.");
+    if (form.password.length < 6) return setError("Password must be at least 6 characters.");
+    setLoading(true);
+    try {
+      await register(form.name.trim(), form.email.trim(), form.password);
+      const data = await login(form.email.trim(), form.password);
+      navigate(data.user.role === "canteen" ? "/canteen" : "/student");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-
-    if (form.password.length < 6) {
-      setError("Password must be at least 6 characters.");
-      return;
-    }
-
-    const user = {
-      name: form.name.trim(),
-      email: form.email.trim(),
-    };
-
-    localStorage.setItem("canbook_user", JSON.stringify(user));
-
-    navigate("/order");
   };
 
   return (
-    <main className="auth-page">
-      <div className="auth-background auth-background-one" />
-      <div className="auth-background auth-background-two" />
-
-      <nav className="auth-nav">
-        <Link to="/" className="auth-logo">
-          CAN<span>BOOK</span>
-        </Link>
-
-        <Link to="/" className="auth-back">
-          Back home
-        </Link>
-      </nav>
-
-      <section className="register-layout">
-        <div className="register-intro">
-          <p className="eyebrow">GIIS CANTEEN / CANBOOK</p>
-
-          <h1>
-            Your lunch
-            <br />
-            starts <span>here.</span>
-          </h1>
-
-          <p className="register-description">
-            Create your CanBook account once. Then browse the canteen menu,
-            build your order, and pick it up when it's ready.
-          </p>
-
-          <div className="register-perks">
-            <div>
-              <span>
-                <Check size={15} />
-              </span>
-              <p>See the current canteen menu</p>
-            </div>
-
-            <div>
-              <span>
-                <Check size={15} />
-              </span>
-              <p>Order before you reach the canteen</p>
-            </div>
-
-            <div>
-              <span>
-                <Check size={15} />
-              </span>
-              <p>Spend less time waiting in line</p>
-            </div>
-          </div>
+    <main className="auth-page register-page">
+      <div className="auth-glow auth-glow-a" /><div className="auth-glow auth-glow-b" />
+      <Link to="/" className="auth-brand">CAN<span>BOOK</span></Link>
+      <section className="auth-layout">
+        <div className="auth-intro">
+          <div className="eyebrow"><Sparkles size={14} /> YOUR SCHOOL CANTEEN</div>
+          <h1>Lunch starts<br /><em>here.</em></h1>
+          <p>Create your account once. Then browse the live menu, choose a pickup slot, and skip the queue.</p>
+          <div className="register-perks"><div><Check size={15} /> Live AED menu</div><div><Check size={15} /> Full date + time pickup</div><div><Check size={15} /> Order tracking</div></div>
         </div>
-
-        <div className="auth-card register-card">
-          <div className="auth-card-heading">
-            <p className="eyebrow">GET STARTED</p>
-            <h2>Create your account.</h2>
-            <p>It only takes a minute.</p>
-          </div>
-
-          <form onSubmit={handleSubmit}>
-            <label>
-              Full name
-              <input
-                name="name"
-                type="text"
-                value={form.name}
-                onChange={handleChange}
-                placeholder="Enter your name"
-                autoComplete="name"
-                required
-              />
-            </label>
-
-            <label>
-              Email address
-              <input
-                name="email"
-                type="email"
-                value={form.email}
-                onChange={handleChange}
-                placeholder="you@example.com"
-                autoComplete="email"
-                required
-              />
-            </label>
-
-            <label>
-              Password
-              <input
-                name="password"
-                type="password"
-                value={form.password}
-                onChange={handleChange}
-                placeholder="At least 6 characters"
-                autoComplete="new-password"
-                required
-              />
-            </label>
-
-            <label>
-              Confirm password
-              <input
-                name="confirmPassword"
-                type="password"
-                value={form.confirmPassword}
-                onChange={handleChange}
-                placeholder="Enter your password again"
-                autoComplete="new-password"
-                required
-              />
-            </label>
-
-            {error && <p className="form-error">{error}</p>}
-
-            <button type="submit" className="btn-primary auth-submit">
-              Continue to menu
-              <ArrowRight size={18} />
-            </button>
+        <section className="auth-card">
+          <div className="auth-card-heading"><span>CANBOOK / JOIN</span><h2>Make lunch easier.</h2><p>It only takes a minute.</p></div>
+          <form onSubmit={handleSubmit} className="auth-form">
+            <label>Full name<input name="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Your name" autoComplete="name" required /></label>
+            <label>Email<input name="email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="you@example.com" autoComplete="email" required /></label>
+            <div className="form-two"><label>Password<input name="password" type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="6+ characters" autoComplete="new-password" required /></label><label>Confirm<input name="confirmPassword" type="password" value={form.confirmPassword} onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })} placeholder="Again" autoComplete="new-password" required /></label></div>
+            {error && <div className="form-error">{error}</div>}
+            <button className="hero-primary auth-submit" disabled={loading}>{loading ? "Creating account..." : "Start ordering"}<ArrowRight size={18} /></button>
           </form>
-
-          <p className="auth-switch">
-            Already have an account?{" "}
-            <Link to="/login">Log in</Link>
-          </p>
-        </div>
+          <p className="auth-switch">Already have an account? <Link to="/login">Log in</Link></p>
+        </section>
       </section>
     </main>
   );
