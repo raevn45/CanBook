@@ -1,6 +1,7 @@
 import { BrowserRouter, useLocation } from "react-router-dom";
 import AppRoutes from "./pages/routes/approutes";
 import Navbar from "./components/layout/navbar";
+import InteractiveExperience from "./components/effects/interactiveexperience";
 
 function AppShell() {
   const location = useLocation();
@@ -8,6 +9,7 @@ function AppShell() {
 
   return (
     <>
+      <InteractiveExperience />
       {!isPublic && <Navbar />}
       <AppRoutes />
     </>
