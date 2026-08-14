@@ -5,32 +5,33 @@ from werkzeug.security import generate_password_hash
 from config import mysql_config
 
 
+DEFAULT_MENU = [
+    ("Chicken Manchurian + Fried Rice", "Indo-Chinese comfort food with fluffy fried rice.", "meals", 12.00),
+    ("Veg Manchurian + Fried Rice", "Crispy veg Manchurian with fragrant fried rice.", "meals", 10.00),
+    ("Puff", "Flaky, savoury canteen classic.", "snacks", 5.00),
+    ("Chai Cake", "Soft tea-time cake for a tiny sweet break.", "desserts", 3.00),
+    ("Chole Puri", "Spiced chickpeas with warm, fluffy puri.", "meals", 10.00),
+    ("Boiled Egg", "Simple, protein-packed and ready to go.", "snacks", 2.00),
+    ("Veg Sandwich", "Fresh vegetables layered into a school-day favourite.", "sandwiches", 7.00),
+    ("Chicken Sandwich", "Tender chicken, crunchy vegetables and soft bread.", "sandwiches", 7.00),
+    ("Aalo Paratha", "Golden stuffed paratha with a hearty potato filling.", "meals", 10.00),
+]
+
+
 def create_database():
     connection_config = mysql_config.copy()
-
     database_name = connection_config.pop("database")
 
-    connection = mysql.connector.connect(
-        **connection_config
-    )
-
+    connection = mysql.connector.connect(**connection_config)
     cursor = connection.cursor()
-
-    cursor.execute(
-        f"CREATE DATABASE IF NOT EXISTS {database_name}"
-    )
-
+    cursor.execute(f"CREATE DATABASE IF NOT EXISTS {database_name}")
     cursor.close()
     connection.close()
-
     print("Database created.")
 
 
 def create_tables():
-    connection = mysql.connector.connect(
-        **mysql_config
-    )
-
+    connection = mysql.connector.connect(**mysql_config)
     cursor = connection.cursor()
 
     cursor.execute("""
@@ -39,8 +40,7 @@ def create_tables():
             name VARCHAR(100) NOT NULL,
             email VARCHAR(150) UNIQUE NOT NULL,
             password_hash VARCHAR(255) NOT NULL,
-            role ENUM('student', 'canteen')
-                DEFAULT 'student',
+            role ENUM('student', 'canteen') DEFAULT 'student',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
@@ -63,18 +63,10 @@ def create_tables():
             user_id INT NOT NULL,
             pickup_slot VARCHAR(50) NOT NULL,
             total_amount DECIMAL(10,2) NOT NULL,
-            status ENUM(
-                'Pending',
-                'Preparing',
-                'Ready',
-                'Collected',
-                'Cancelled'
-            ) DEFAULT 'Pending',
+            status ENUM('Pending', 'Preparing', 'Ready', 'Collected', 'Cancelled') DEFAULT 'Pending',
             order_date DATE NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-            FOREIGN KEY (user_id)
-            REFERENCES users(user_id)
+            FOREIGN KEY (user_id) REFERENCES users(user_id)
         )
     """)
 
@@ -85,59 +77,33 @@ def create_tables():
             item_id INT NOT NULL,
             quantity INT NOT NULL,
             price_at_order DECIMAL(8,2) NOT NULL,
-
-            FOREIGN KEY (order_id)
-            REFERENCES orders(order_id)
-            ON DELETE CASCADE,
-
-            FOREIGN KEY (item_id)
-            REFERENCES menu(item_id)
+            FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
+            FOREIGN KEY (item_id) REFERENCES menu(item_id)
         )
     """)
 
     connection.commit()
-
     cursor.close()
     connection.close()
-
     print("Tables created.")
 
 
 def create_canteen_account():
-    connection = mysql.connector.connect(
-        **mysql_config
-    )
-
+    connection = mysql.connector.connect(**mysql_config)
     cursor = connection.cursor()
 
     email = "canteen@canbook.com"
-
-    cursor.execute(
-        "SELECT user_id FROM users WHERE email = %s",
-        (email,)
-    )
+    cursor.execute("SELECT user_id FROM users WHERE email = %s", (email,))
 
     if cursor.fetchone():
         print("Canteen account already exists.")
-
     else:
-        password_hash = generate_password_hash(
-            "canteen"
-        )
-
+        password_hash = generate_password_hash("canteen")
         cursor.execute("""
-            INSERT INTO users
-            (name, email, password_hash, role)
+            INSERT INTO users (name, email, password_hash, role)
             VALUES (%s, %s, %s, %s)
-        """, (
-            "Canbook Canteen",
-            email,
-            password_hash,
-            "canteen"
-        ))
-
+        """, ("Canbook Canteen", email, password_hash, "canteen"))
         connection.commit()
-
         print("Canteen account created.")
         print("Email: canteen@canbook.com")
         print("Password: canteen")
@@ -147,69 +113,20 @@ def create_canteen_account():
 
 
 def insert_sample_menu():
-    connection = mysql.connector.connect(
-        **mysql_config
-    )
-
+    connection = mysql.connector.connect(**mysql_config)
     cursor = connection.cursor()
-
     cursor.execute("SELECT COUNT(*) FROM menu")
-
     count = cursor.fetchone()[0]
 
     if count == 0:
-
-        items = [
-            (
-                "chicken sandwich",
-                "grilled chicken with fresh vegetables",
-                "sandwiches",
-                8.00
-            ),
-            (
-                "veg sandwich",
-                "fresh vegetable sandwich",
-                "sandwiches",
-                7.00
-            ),
-            (
-                "cheese pizza",
-                "classic cheese pizza slice",
-                "meals",
-                12.00
-            ),
-            (
-                "french fries",
-                "crispy golden fries",
-                "sides",
-                6.00
-            ),
-            (
-                "fresh juice",
-                "seasonal fruit juice",
-                "drinks",
-                5.00
-            ),
-            (
-                "chocolate cookie",
-                "soft chocolate chip cookie",
-                "snacks",
-                3.00
-            )
-        ]
-
         cursor.executemany("""
-            INSERT INTO menu
-            (item_name, description, category, price)
+            INSERT INTO menu (item_name, description, category, price)
             VALUES (%s, %s, %s, %s)
-        """, items)
-
+        """, DEFAULT_MENU)
         connection.commit()
-
-        print("Sample menu inserted.")
-
+        print("CanBook default menu inserted.")
     else:
-        print("Menu already contains items.")
+        print("Menu already contains items; existing canteen-managed items were preserved.")
 
     cursor.close()
     connection.close()
@@ -220,5 +137,3 @@ if __name__ == "__main__":
     create_tables()
     create_canteen_account()
     insert_sample_menu()
-
-    print("\ncanbook database setup complete.")
