@@ -17,7 +17,7 @@ allowed_origins = [
     origin.strip().rstrip("/")
     for origin in os.getenv(
         "FRONTEND_ORIGIN",
-        "http://localhost:5173,https://canbook-six.vercel.app"
+        "http://localhost:5173,https://canbook.vercel.app"
     ).split(",")
     if origin.strip()
 ]
