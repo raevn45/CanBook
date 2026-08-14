@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Navigate, Routes, Route } from "react-router-dom";
 import Landing from "../landing";
 import Login from "../login";
 import Register from "../register";
@@ -24,103 +24,23 @@ export default function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
-      <Route
-        path="/student"
-        element={
-          <ProtectedRoute>
-            <StudentDashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/menu"
-        element={
-          <ProtectedRoute>
-            <Menu />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/cart"
-        element={
-          <ProtectedRoute>
-            <CartPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/checkout"
-        element={
-          <ProtectedRoute>
-            <Checkout />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/success"
-        element={
-          <ProtectedRoute>
-            <OrderSuccess />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/orders"
-        element={
-          <ProtectedRoute>
-            <MyOrders />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/profile"
-        element={
-          <ProtectedRoute>
-            <Profile />
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/student" element={<ProtectedRoute><StudentDashboard /></ProtectedRoute>} />
+      <Route path="/menu" element={<ProtectedRoute><Menu /></ProtectedRoute>} />
+      <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
+      <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+      <Route path="/success" element={<ProtectedRoute><OrderSuccess /></ProtectedRoute>} />
+      <Route path="/orders" element={<ProtectedRoute><MyOrders /></ProtectedRoute>} />
+      <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 
-      <Route
-        path="/canteen"
-        element={
-          <CanteenRoute>
-            <CanteenDashboard />
-          </CanteenRoute>
-        }
-      />
-      <Route
-        path="/canteen/orders"
-        element={
-          <CanteenRoute>
-            <Orders />
-          </CanteenRoute>
-        }
-      />
-      <Route
-        path="/canteen/analytics"
-        element={
-          <CanteenRoute>
-            <DemandAnalytics />
-          </CanteenRoute>
-        }
-      />
-      <Route
-        path="/canteen/menu"
-        element={
-          <CanteenRoute>
-            <MenuManagement />
-          </CanteenRoute>
-        }
-      />
-      <Route
-        path="/canteen/orders/:id"
-        element={
-          <CanteenRoute>
-            <OrderDetails />
-          </CanteenRoute>
-        }
-      />
+      <Route path="/order" element={<Navigate to="/menu" replace />} />
+
+      <Route path="/canteen" element={<CanteenRoute><CanteenDashboard /></CanteenRoute>} />
+      <Route path="/canteen/orders" element={<CanteenRoute><Orders /></CanteenRoute>} />
+      <Route path="/canteen/analytics" element={<CanteenRoute><DemandAnalytics /></CanteenRoute>} />
+      <Route path="/canteen/menu" element={<CanteenRoute><MenuManagement /></CanteenRoute>} />
+      <Route path="/canteen/orders/:id" element={<CanteenRoute><OrderDetails /></CanteenRoute>} />
+
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
