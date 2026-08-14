@@ -17,8 +17,6 @@ orders = Blueprint("orders", __name__)
 @orders.get("/")
 @login_required
 def user_orders():
-    if session["role"] == "canteen":
-        return jsonify({"orders": []})
     result = get_user_orders(session["user_id"])
     return jsonify({"orders": result})
 
