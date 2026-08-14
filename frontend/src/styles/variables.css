@@ -1,0 +1,52 @@
+/* ============================================
+   CANBOOK — PIXEL ART + CYBERCORE DESIGN TOKENS
+   Replace the whole contents of variables.css with this.
+   ============================================ */
+
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Silkscreen:wght@400;700&display=swap");
+
+:root {
+  /* ---- surfaces ---- */
+  --bg-void: #0a0014;
+  --bg-panel: #12021f;
+  --bg-panel-raised: #1a032c;
+  --bg-input: #1c0a2b;
+
+  /* ---- neon palette ---- */
+  --neon-cyan: #00fff2;
+  --neon-magenta: #ff00e5;
+  --neon-lime: #39ff14;
+  --neon-yellow: #fff700;
+  --neon-orange: #ff6a00;
+
+  /* ---- role accents ---- */
+  --accent-primary: var(--neon-cyan);
+  --accent-secondary: var(--neon-magenta);
+  --accent-success: var(--neon-lime);
+  --accent-warning: var(--neon-yellow);
+  --accent-danger: var(--neon-orange);
+
+  /* ---- text ---- */
+  --text-bright: #f4f0ff;
+  --text-dim: #9a8fc2;
+  --text-faint: #5c5480;
+
+  /* ---- pixel structure ---- */
+  --pixel-outline: #ffffff;
+  --pixel-shadow: #000000;
+  --pixel-unit: 4px; /* base "pixel" step size for borders/shadows */
+  --radius: 0px; /* pixel art = no rounded corners, anywhere */
+
+  /* ---- type ---- */
+  --font-pixel: "Press Start 2P", monospace; /* headers, buttons, labels — use sparingly, all caps */
+  --font-body: "VT323", monospace; /* body copy — larger sizes to stay legible */
+  --font-mono: "Silkscreen", monospace; /* data, numbers, badges */
+
+  /* ---- spacing scale ---- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 48px;
+}

@@ -1,0 +1,272 @@
+/* ============================================
+   CANBOOK — PIXEL ART + CYBERCORE COMPONENTS
+   Replace the whole contents of pixel.css with this.
+   These are the shared classes used across every page:
+   pixel-button, pixel-label, cards, badges, inputs, etc.
+   ============================================ */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background: var(--bg-void);
+  color: var(--text-bright);
+  font-family: var(--font-body);
+  font-size: 20px; /* VT323 reads small — bump base size up */
+  line-height: 1.5;
+}
+
+::selection {
+  background: var(--neon-magenta);
+  color: var(--bg-void);
+}
+
+/* pixel scrollbar */
+::-webkit-scrollbar { width: 14px; }
+::-webkit-scrollbar-track { background: var(--bg-panel); }
+::-webkit-scrollbar-thumb {
+  background: var(--neon-cyan);
+  border: 3px solid var(--bg-void);
+}
+
+/* ---------- headings ---------- */
+h1, h2, h3, .pixel-heading {
+  font-family: var(--font-pixel);
+  text-transform: lowercase;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  color: var(--text-bright);
+  text-shadow:
+    0 0 6px var(--neon-cyan),
+    0 0 14px rgba(0, 255, 242, 0.35);
+}
+
+h1 { font-size: 26px; }
+h2 { font-size: 18px; }
+h3 { font-size: 14px; }
+
+/* ---------- terminal label (the little "canbook / login" tag) ---------- */
+.pixel-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--neon-cyan);
+  padding: 2px 8px;
+  border: 2px solid var(--neon-cyan);
+  background: rgba(0, 255, 242, 0.06);
+  margin-bottom: var(--space-3);
+}
+
+.pixel-label::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  background: var(--neon-lime);
+  box-shadow: 0 0 6px 2px var(--neon-lime);
+  animation: pixel-blink 1s steps(2) infinite;
+}
+
+/* ---------- pixel panel / card ----------
+   use this class (or apply the same rules to .auth-card, .hero-terminal,
+   any dashboard/menu "card" wrapper) for the signature pixel-bordered look */
+.pixel-panel,
+.auth-card,
+.hero-terminal,
+.card {
+  position: relative;
+  background: var(--bg-panel);
+  border: 3px solid var(--pixel-outline);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+  box-shadow:
+    6px 6px 0 var(--pixel-shadow),
+    0 0 0 3px var(--bg-void),
+    0 0 24px rgba(0, 255, 242, 0.15);
+}
+
+/* pixel corner notches — fake "cut corner" pixel-art panel look */
+.pixel-panel::before,
+.auth-card::before,
+.hero-terminal::before,
+.card::before {
+  content: "";
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  width: 12px;
+  height: 12px;
+  background: var(--bg-void);
+  border-right: 3px solid var(--pixel-outline);
+  border-bottom: 3px solid var(--pixel-outline);
+}
+
+.pixel-panel::after,
+.auth-card::after,
+.hero-terminal::after,
+.card::after {
+  content: "";
+  position: absolute;
+  bottom: -3px;
+  right: -3px;
+  width: 12px;
+  height: 12px;
+  background: var(--bg-void);
+  border-left: 3px solid var(--pixel-outline);
+  border-top: 3px solid var(--pixel-outline);
+}
+
+/* ---------- pixel button ---------- */
+.pixel-button,
+button.pixel-button,
+.secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  text-transform: lowercase;
+  color: var(--bg-void);
+  background: var(--neon-cyan);
+  border: 3px solid var(--pixel-outline);
+  border-radius: 0;
+  padding: 14px 20px;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 var(--pixel-shadow);
+  transition: transform 0.08s steps(2), box-shadow 0.08s steps(2);
+}
+
+.pixel-button:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--pixel-shadow);
+}
+
+.pixel-button:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--pixel-shadow);
+}
+
+.pixel-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.secondary-button {
+  background: transparent;
+  color: var(--neon-magenta);
+  border-color: var(--neon-magenta);
+  box-shadow: 4px 4px 0 var(--pixel-shadow);
+}
+
+.secondary-button:hover {
+  background: rgba(255, 0, 229, 0.1);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--pixel-shadow);
+}
+
+/* ---------- inputs ---------- */
+input,
+select,
+textarea {
+  font-family: var(--font-body);
+  font-size: 18px;
+  color: var(--text-bright);
+  background: var(--bg-input);
+  border: 3px solid var(--text-faint);
+  border-radius: 0;
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color 0.1s steps(2), box-shadow 0.1s steps(2);
+}
+
+input::placeholder { color: var(--text-faint); }
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 0 3px rgba(0, 255, 242, 0.25);
+}
+
+label {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+/* ---------- badges / status pills ---------- */
+.pixel-badge,
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 4px 10px;
+  border: 2px solid currentColor;
+  border-radius: 0;
+}
+
+.status-badge.pending { color: var(--neon-yellow); }
+.status-badge.preparing { color: var(--neon-orange); }
+.status-badge.ready { color: var(--neon-cyan); }
+.status-badge.collected,
+.status-badge.completed { color: var(--neon-lime); }
+.status-badge.cancelled { color: #ff3355; }
+
+/* ---------- links ---------- */
+a { color: var(--neon-cyan); text-decoration: none; }
+a:hover { color: var(--neon-magenta); text-decoration: underline; }
+
+/* ---------- error box ---------- */
+.error-box {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: #ffd4de;
+  background: rgba(255, 0, 80, 0.12);
+  border: 2px solid #ff3355;
+  padding: 10px 12px;
+  margin-bottom: var(--space-3);
+}
+
+/* ---------- background grid + scanlines (effects components) ---------- */
+.background-grid {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background-color: var(--bg-void);
+  background-image:
+    linear-gradient(rgba(0, 255, 242, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 242, 0.07) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.scanlines {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.18) 0px,
+    rgba(0, 0, 0, 0.18) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  opacity: 0.6;
+}
+
+/* pixelate any raster images/icons instead of smoothing them */
+img, svg.pixel-art {
+  image-rendering: pixelated;
+}

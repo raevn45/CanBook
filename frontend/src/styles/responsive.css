@@ -1,0 +1,31 @@
+@media (max-width: 800px) {
+  .container {
+    width: min(100% - 24px, 600px);
+  }
+
+  .desktop-nav {
+    display: none;
+  }
+
+  .hero-title {
+    font-size: 48px !important;
+  }
+
+  .menu-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+@media (max-width: 500px) {
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .hero-title {
+    font-size: 38px !important;
+  }
+}
