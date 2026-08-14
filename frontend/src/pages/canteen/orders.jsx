@@ -1,14 +1,19 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
-import { ArrowUpRight, CheckCircle2, Clock3, RefreshCw, Trash2, UtensilsCrossed, X } from "lucide-react";
+import { ArrowUpRight, CheckCircle2, ChevronRight, Clock3, PackageCheck, RefreshCw, Trash2, UtensilsCrossed, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { canteenapi, orderapi } from "../../api";
 
-const STATUSES = ["Pending", "Preparing", "Ready", "Collected", "Cancelled"];
+const STATUS_ACTIONS = {
+  Pending: { label: "Start preparing", next: "Preparing", icon: Clock3 },
+  Preparing: { label: "Mark ready", next: "Ready", icon: PackageCheck },
+  Ready: { label: "Collected", next: "Collected", icon: CheckCircle2 },
+};
+
 const statusClass = (status) => String(status || "Pending").toLowerCase();
 
 export default function Orders() {
-  const [data, setData] = useState({ orders: [] });
+  const [data, setData] = useState({ orders: [], completed_today: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [updating, setUpdating] = useState(null);
@@ -37,7 +42,6 @@ export default function Orders() {
       await loadOrders();
     } catch (err) {
       setError(err.message || "Unable to update this order.");
-    } finally {
       setUpdating(null);
     }
   };
@@ -65,11 +69,14 @@ export default function Orders() {
         <div>
           <span className="micro-label"><UtensilsCrossed size={13} /> CANBOOK / STAFF / LIVE QUEUE</span>
           <h1>Today's <em>orders.</em></h1>
-          <p>Move each order through the kitchen. Pickup details stay visible while the queue changes.</p>
+          <p>Run the kitchen from one clean queue. Move each order from received to ready, then hand it to the student.</p>
         </div>
-        <motion.button type="button" className="dashboard-refresh" onClick={loadOrders} disabled={loading} whileHover={{ y: -3 }} whileTap={{ scale: .96 }}>
-          <RefreshCw size={17} className={loading ? "spin" : ""} /> {loading ? "Syncing" : "Refresh queue"}
-        </motion.button>
+        <div className="queue-header-actions">
+          <div className="queue-completed-pill"><CheckCircle2 size={15} /> {data.completed_today || 0} collected today</div>
+          <motion.button type="button" className="dashboard-refresh" onClick={loadOrders} disabled={loading} whileHover={{ y: -3 }} whileTap={{ scale: .96 }}>
+            <RefreshCw size={17} className={loading ? "spin" : ""} /> {loading ? "Syncing" : "Refresh queue"}
+          </motion.button>
+        </div>
       </header>
 
       {error && (
@@ -94,14 +101,24 @@ export default function Orders() {
             <AnimatePresence mode="popLayout">
               {data.orders.map((order, index) => {
                 const isConfirming = confirmDelete === order.order_id;
+                const action = STATUS_ACTIONS[order.status] || null;
+                const ActionIcon = action?.icon;
                 return (
                   <motion.article layout key={order.order_id} className={`queue-card status-${statusClass(order.status)}`} initial={{ opacity: 0, y: 25, scale: .96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, scale: .88 }} transition={{ delay: Math.min(index * .05, .25), type: "spring", stiffness: 240, damping: 22 }} whileHover={{ y: -7 }}>
-                    <div className="queue-card-top"><span className="queue-number">{String(index + 1).padStart(2, "0")}</span><span className={`queue-status ${statusClass(order.status)}`}><Clock3 size={13} /> {order.status}</span></div>
-                    <div className="queue-card-title"><span>ORDER #{order.order_id}</span><h2>{order.name}</h2></div>
+                    <div className="queue-card-top"><span className="queue-number">#{order.order_id}</span><span className={`queue-status ${statusClass(order.status)}`}><Clock3 size={13} /> {order.status}</span></div>
+                    <div className="queue-card-title"><span>STUDENT</span><h2>{order.name}</h2></div>
                     <div className="queue-pickup"><small>PICKUP</small><strong>{order.pickup_slot || "Pickup time not set"}</strong></div>
                     <div className="queue-money"><span>TOTAL</span><strong>AED {Number(order.total_amount || 0).toFixed(2)}</strong></div>
+
+                    {action && (
+                      <button type="button" className={`queue-primary-action ${statusClass(action.next)}`} onClick={() => updateStatus(order.order_id, action.next)} disabled={updating === order.order_id}>
+                        <ActionIcon size={17} />
+                        <span>{updating === order.order_id ? "Updating…" : action.label}</span>
+                        <ChevronRight size={17} />
+                      </button>
+                    )}
+
                     <div className="queue-actions">
-                      <label><span>Move status</span><select value={order.status} disabled={updating === order.order_id} onChange={(event) => updateStatus(order.order_id, event.target.value)} aria-label={`Status for order ${order.order_id}`}>{STATUSES.map((status) => <option key={status} value={status}>{status}</option>)}</select></label>
                       <Link to={`/canteen/orders/${order.order_id}`} className="queue-open">Open order <ArrowUpRight size={16} /></Link>
                     </div>
                     <div className="queue-delete-row">
