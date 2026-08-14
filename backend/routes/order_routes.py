@@ -14,7 +14,7 @@ from utils.auth_utils import login_required
 orders = Blueprint("orders", __name__)
 
 
-@orders.get("/")
+@orders.get("/", strict_slashes=False)
 @login_required
 def user_orders():
     result = get_user_orders(session["user_id"])
@@ -53,7 +53,7 @@ def delete_existing_order(order_id):
     return jsonify({"message": "order deleted", "order_id": order_id})
 
 
-@orders.post("/")
+@orders.post("/", strict_slashes=False)
 @login_required
 def create_new_order():
     data = request.get_json() or {}
