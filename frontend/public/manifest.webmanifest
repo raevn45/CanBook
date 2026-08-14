@@ -1,0 +1,19 @@
+{
+  "name": "CanBook — School Canteen",
+  "short_name": "CanBook",
+  "description": "Pre-order school canteen food and choose your pickup window.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f4f0e8",
+  "theme_color": "#171716",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
