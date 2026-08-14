@@ -18,23 +18,9 @@ const api = async (endpoint, options = {}) => {
 };
 
 export const authapi = {
-  login: (data) =>
-    api("/auth/login", {
-      method: "POST",
-      body: JSON.stringify(data),
-    }),
-
-  register: (data) =>
-    api("/auth/register", {
-      method: "POST",
-      body: JSON.stringify(data),
-    }),
-
-  logout: () =>
-    api("/auth/logout", {
-      method: "POST",
-    }),
-
+  login: (data) => api("/auth/login", { method: "POST", body: JSON.stringify(data) }),
+  register: (data) => api("/auth/register", { method: "POST", body: JSON.stringify(data) }),
+  logout: () => api("/auth/logout", { method: "POST" }),
   me: () => api("/auth/me"),
 };
 
@@ -44,36 +30,15 @@ export const menuapi = {
 
 export const orderapi = {
   getall: () => api("/orders"),
-
   getone: (id) => api(`/orders/${id}`),
-
-  create: (data) =>
-    api("/orders", {
-      method: "POST",
-      body: JSON.stringify(data),
-    }),
+  create: (data) => api("/orders", { method: "POST", body: JSON.stringify(data) }),
 };
 
 export const canteenapi = {
   dashboard: () => api("/canteen/dashboard"),
-
-  updateorder: (id, status) =>
-    api(`/canteen/orders/${id}`, {
-      method: "PATCH",
-      body: JSON.stringify({ status }),
-    }),
-
+  analytics: () => api("/canteen/analytics"),
+  updateorder: (id, status) => api(`/canteen/orders/${id}`, { method: "PATCH", body: JSON.stringify({ status }) }),
   menu: () => api("/canteen/menu"),
-
-  additem: (data) =>
-    api("/canteen/menu", {
-      method: "POST",
-      body: JSON.stringify(data),
-    }),
-
-  toggleitem: (id, available) =>
-    api(`/canteen/menu/${id}`, {
-      method: "PATCH",
-      body: JSON.stringify({ available }),
-    }),
+  additem: (data) => api("/canteen/menu", { method: "POST", body: JSON.stringify(data) }),
+  toggleitem: (id, available) => api(`/canteen/menu/${id}`, { method: "PATCH", body: JSON.stringify({ available }) }),
 };
