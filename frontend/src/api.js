@@ -18,15 +18,19 @@ const api = async (endpoint, options = {}) => {
   } else {
     const text = await response.text();
     const cleanText = text.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
-    throw new Error(
+    const error = new Error(
       response.status === 404
         ? `CanBook API route not found: ${endpoint}. Check the Flask backend URL and make sure it is running.`
         : `CanBook API returned ${response.status} instead of JSON${cleanText ? `: ${cleanText.slice(0, 140)}` : "."}`
     );
+    error.status = response.status;
+    throw error;
   }
 
   if (!response.ok) {
-    throw new Error(data?.error || "Something went wrong.");
+    const error = new Error(data?.error || "Something went wrong.");
+    error.status = response.status;
+    throw error;
   }
 
   return data;
@@ -47,6 +51,7 @@ export const orderapi = {
   getall: () => api("/orders"),
   getone: (id) => api(`/orders/${id}`),
   create: (data) => api("/orders", { method: "POST", body: JSON.stringify(data) }),
+  remove: (id) => api(`/orders/${id}`, { method: "DELETE" }),
 };
 
 export const canteenapi = {
