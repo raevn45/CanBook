@@ -17,7 +17,7 @@ export const pickupslots = [
   "14:20 - 14:40",
 ];
 
-export const categories = ["all", "meals", "snacks", "sandwiches", "desserts"];
+export const categories = ["all", "meals", "snacks", "sandwiches", "desserts", "drinks"];
 
 export const menuFallback = [
   { item_id: 1, item_name: "Chicken Manchurian + Fried Rice", price: 12, category: "meals", description: "Indo-Chinese comfort food with fluffy fried rice." },
