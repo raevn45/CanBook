@@ -15,7 +15,10 @@ app.secret_key = secret_key or "canbook-dev-secret"
 is_production = os.getenv("APP_ENV", "development").lower() == "production"
 allowed_origins = [
     origin.strip().rstrip("/")
-    for origin in os.getenv("FRONTEND_ORIGIN", "http://localhost:5173").split(",")
+    for origin in os.getenv(
+        "FRONTEND_ORIGIN",
+        "http://localhost:5173,https://canbook-six.vercel.app"
+    ).split(",")
     if origin.strip()
 ]
 
