@@ -1,40 +1,78 @@
-# Canbook 
+# CanBook
 
-Canbook is a digital school canteen ordering and management system designed to make the process of ordering food at school faster, simpler, and more organized.
+CanBook is a school canteen pre-ordering system built around a React + Vite student experience and a Flask + MySQL canteen backend.
 
-## About
+## Current architecture
 
-Canbook provides a centralized platform where students can browse available canteen items, place orders, and manage their purchases digitally.
+- **Frontend:** React 19 + Vite + React Router + Motion
+- **Backend:** Python Flask + Flask-CORS
+- **Database:** MySQL / MySQL Connector
+- **Authentication:** Flask session cookies with student/canteen roles
+- **PWA:** Web app manifest + service worker for installable mobile/desktop app behavior
 
-The project was developed as a Grade 12 Computer Science project with the aim of applying programming concepts to a practical, real-world problem within a school environment.
+The existing Flask routes and order payload contract are preserved. The checkout continues to send `pickup_slot` plus `items`, while the frontend API base can be configured for local or hosted deployments.
 
-## Features
+## Student experience
 
-- Student food ordering
-- Digital canteen menu
-- Order management
-- Student-friendly interface
-- Canteen management functionality
-- Organized order tracking
+- Exact CanBook menu in AED
+- Interactive menu cards and cart feedback
+- Full pickup calendar with school-day validation
+- 20-minute pickup time slots
+- Animated order confirmation and visual order history
+- Responsive mobile bottom navigation
+- Installable PWA shell
 
-## Tech Stack
+## Staff experience
 
-- **Frontend:** HTML, CSS, JavaScript
-- **Backend:** Python, Flask
-- **Database:** SQLite
-- **Environment:** Python Virtual Environment
+- Dedicated canteen dashboard, never the student ordering dashboard
+- Interactive live order queue
+- Order status controls
+- Visual order detail ticket
+- Database analytics for orders, students, items, revenue, and demand
+- Menu management with add/hide/restore controls
 
-## Project Structure
+## Local development
+
+### Backend
+
+Create `backend/.env` from `backend/.env.example`, then from `backend/` run:
+
+```powershell
+python init_db.py
+python app.py
+```
+
+Flask listens on port 5000.
+
+### Frontend
+
+From `frontend/`:
+
+```powershell
+npm install
+npm run dev
+```
+
+Vite listens on port 5173 and proxies `/api` to Flask during local development.
+
+## Free deployment
+
+The recommended no-cost stack for this MySQL-based architecture is:
+
+1. **Cloudflare Pages** for the Vite frontend.
+2. **Render Free Web Service** for Flask/Gunicorn.
+3. **Aiven Free MySQL** for the persistent MySQL database.
+
+Cloudflare Pages uses `npm run build` with `dist` as the output directory. Render uses `backend/` as the service root, `pip install -r requirements.txt` as the build command, and `gunicorn app:app` as the start command.
+
+For Cloudflare Pages, set:
 
 ```text
-Canbook/
-│
-├── backend/
-│   ├── ...
-│
-├── frontend/
-│   ├── ...
-│
-├── requirements.txt
-├── .gitignore
-└── README.md
+VITE_API_BASE_URL=https://YOUR-CANBOOK-API.onrender.com/api
+```
+
+For Render, set `APP_ENV=production`, `FRONTEND_ORIGIN` to the exact Cloudflare Pages origin, and the five MySQL/session variables shown in `backend/.env.example`.
+
+Create the Aiven MySQL service first, then run `init_db.py` once locally against that hosted database to create the tables, staff account, and canonical nine-item menu.
+
+> Free hosting is excellent for a school project/demo but has provider limits. Render free web services can sleep after inactivity, and Aiven's free MySQL tier is intentionally small.
