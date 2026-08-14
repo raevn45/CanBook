@@ -1,77 +1,10 @@
 import { Link } from "react-router-dom";
-import { motion } from "motion/react";
+import { ArrowLeft, ArrowRight, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { useCart } from "../../context/cartcontext";
 
 export default function CartPage() {
   const { cart, total, updateQuantity, removeFromCart } = useCart();
+  if (!cart.length) return <main className="empty-page"><div className="empty-art">🛒</div><span className="section-kicker">CANBOOK / CART</span><h1>Your cart is<br /><em>waiting.</em></h1><p>Pick something from today's menu and come back here.</p><Link to="/menu" className="hero-primary">Browse menu <ArrowRight size={17} /></Link></main>;
 
-  if (!cart.length) {
-    return (
-      <div className="empty-page">
-        <div className="pixel-label">canbook / cart</div>
-        <h1>your cart is empty.</h1>
-        <p>go find something delicious.</p>
-        <Link to="/menu" className="pixel-button">
-          browse menu →
-        </Link>
-      </div>
-    );
-  }
-
-  return (
-    <div className="page-container">
-      <div className="page-heading">
-        <div>
-          <div className="pixel-label">canbook / cart</div>
-          <h1>your order.</h1>
-        </div>
-      </div>
-
-      <div className="cart-layout">
-        <div className="cart-list">
-          {cart.map((item) => (
-            <motion.div key={item.item_id} className="cart-item" layout>
-              <div>
-                <h2>{item.item_name}</h2>
-                <p>AED {Number(item.price).toFixed(2)}</p>
-              </div>
-
-              <div className="quantity">
-                <button
-                  onClick={() =>
-                    updateQuantity(item.item_id, item.quantity - 1)
-                  }
-                >
-                  −
-                </button>
-                <strong>{item.quantity}</strong>
-                <button
-                  onClick={() =>
-                    updateQuantity(item.item_id, item.quantity + 1)
-                  }
-                >
-                  +
-                </button>
-              </div>
-
-              <button
-                className="remove"
-                onClick={() => removeFromCart(item.item_id)}
-              >
-                remove
-              </button>
-            </motion.div>
-          ))}
-        </div>
-
-        <div className="checkout-box">
-          <span>total</span>
-          <strong>AED {total.toFixed(2)}</strong>
-          <Link to="/checkout" className="pixel-button">
-            checkout →
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
+  return <main className="cart-page"><nav className="app-nav"><Link to="/menu" className="back-link"><ArrowLeft size={17} /> Menu</Link><span>CANBOOK / YOUR ORDER</span><Link to="/orders">My orders</Link></nav><section className="cart-shell"><div className="cart-main"><div className="eyebrow"><ShoppingBag size={14} /> YOUR LUNCH</div><h1>Good choices.</h1><p>Check everything before choosing your pickup date and time.</p><div className="cart-list">{cart.map((item) => <article className="cart-row-modern" key={item.item_id}><div className="cart-emoji">🍽️</div><div className="cart-item-copy"><h2>{item.item_name}</h2><span>AED {Number(item.price).toFixed(2)} each</span></div><div className="quantity-modern"><button onClick={() => updateQuantity(item.item_id, item.quantity - 1)}><Minus size={15} /></button><b>{item.quantity}</b><button onClick={() => updateQuantity(item.item_id, item.quantity + 1)}><Plus size={15} /></button></div><strong className="cart-line-total">AED {(Number(item.price) * item.quantity).toFixed(2)}</strong><button className="remove-modern" onClick={() => removeFromCart(item.item_id)} aria-label={`Remove ${item.item_name}`}><Trash2 size={16} /></button></article>)}</div></div><aside className="cart-summary"><span>ORDER TOTAL</span><strong>AED {total.toFixed(2)}</strong><div><span>{cart.reduce((n, item) => n + item.quantity, 0)} items</span><span>Pickup scheduled at checkout</span></div><Link to="/checkout" className="hero-primary">Choose pickup <ArrowRight size={17} /></Link><small>You'll pick a date and a 20-minute collection window next.</small></aside></section></main>;
 }

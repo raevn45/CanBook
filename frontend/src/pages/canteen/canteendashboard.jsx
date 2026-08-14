@@ -1,83 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "motion/react";
+import { ArrowRight, BarChart3, ChefHat, ClipboardList, RefreshCw } from "lucide-react";
 import { canteenapi } from "../../api";
 
 export default function CanteenDashboard() {
-  const [data, setData] = useState({
-    total_orders: 0,
-    revenue: 0,
-    demand: [],
-    orders: [],
-  });
-
-  useEffect(() => {
-    canteenapi.dashboard().then(setData);
-  }, []);
-
-  return (
-    <div className="page-container">
-      <div className="page-heading">
-        <div>
-          <div className="pixel-label">canteen / control center</div>
-          <h1>good morning.</h1>
-          <p>here's what today's demand looks like.</p>
-        </div>
-      </div>
-
-      <div className="stats-grid">
-        <div className="stat-card">
-          <span>today's orders</span>
-          <strong>{data.total_orders}</strong>
-        </div>
-
-        <div className="stat-card">
-          <span>expected revenue</span>
-          <strong>AED {Number(data.revenue).toFixed(0)}</strong>
-        </div>
-
-        <div className="stat-card">
-          <span>top item</span>
-          <strong>{data.demand[0]?.item_name || "—"}</strong>
-        </div>
-      </div>
-
-      <div className="canteen-grid">
-        <div className="dashboard-panel">
-          <div className="panel-heading">
-            <h2>today's demand</h2>
-            <Link to="/canteen/analytics">full analytics →</Link>
-          </div>
-
-          {data.demand.map((item, index) => (
-            <motion.div
-              key={item.item_name}
-              className="demand-row"
-              initial={{ opacity: 0, x: -15 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.06 }}
-            >
-              <span>{item.item_name}</span>
-              <strong>{item.quantity}</strong>
-            </motion.div>
-          ))}
-        </div>
-
-        <div className="dashboard-panel">
-          <div className="panel-heading">
-            <h2>recent orders</h2>
-            <Link to="/canteen/orders">view all →</Link>
-          </div>
-
-          {data.orders.slice(0, 5).map((order) => (
-            <div className="mini-order" key={order.order_id}>
-              <span>#{order.order_id}</span>
-              <strong>{order.name}</strong>
-              <small>{order.status}</small>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+  const [data, setData] = useState({ total_orders: 0, revenue: 0, demand: [], orders: [] });
+  const [loading, setLoading] = useState(true);
+  const load = () => { setLoading(true); canteenapi.dashboard().then(setData).finally(() => setLoading(false)); };
+  useEffect(() => { load(); }, []);
+  const top = data.demand?.[0];
+  return <main className="canteen-page"><nav className="app-nav"><Link to="/canteen" className="app-brand"><span>CB</span><strong>CanBook / Canteen</strong></Link><div><Link to="/canteen/orders">Orders</Link><Link to="/canteen/menu">Menu</Link><Link to="/canteen/analytics">Analytics</Link><button onClick={load}><RefreshCw size={15} /></button></div></nav><section className="canteen-hero"><div><div className="eyebrow"><ChefHat size={14} /> KITCHEN CONTROL</div><h1>Good morning.<br /><em>Let's move lunch.</em></h1><p>Today's live demand, revenue and pickup queue at a glance.</p></div><div className="kitchen-live"><span /> Kitchen online</div></section><section className="canteen-stats"><article><span>ORDERS TODAY</span><strong>{loading ? "—" : data.total_orders}</strong><small>excluding cancelled</small></article><article><span>REVENUE</span><strong>AED {Number(data.revenue || 0).toFixed(0)}</strong><small>today so far</small></article><article><span>TOP ITEM</span><strong>{top?.item_name || "—"}</strong><small>{top ? `${top.quantity} ordered` : "No demand yet"}</small></article></section><section className="canteen-grid-modern"><article className="canteen-panel"><header><div><span className="section-kicker">DEMAND</span><h2>What's moving?</h2></div><Link to="/canteen/analytics">Full analytics <ArrowRight size={15} /></Link></header>{data.demand.length ? data.demand.slice(0, 8).map((item, index) => <div className="demand-modern" key={item.item_name}><span>0{index + 1}</span><strong>{item.item_name}</strong><b>{item.quantity}</b></div>) : <div className="empty-state">No orders yet.</div>}</article><article className="canteen-panel"><header><div><span className="section-kicker">QUEUE</span><h2>Recent orders</h2></div><Link to="/canteen/orders">View all <ArrowRight size={15} /></Link></header>{data.orders?.slice(0, 7).map((order) => <div className="queue-modern" key={order.order_id}><div><strong>#{order.order_id}</strong><span>{order.name}</span></div><div><b>{order.status}</b><small>{order.pickup_slot}</small></div></div>)}</article></section></main>;
 }
