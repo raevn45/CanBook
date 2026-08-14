@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: canbook-api
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    plan: free
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: FRONTEND_ORIGIN
+        sync: false
+      - key: mysql_host
+        sync: false
+      - key: mysql_user
+        sync: false
+      - key: mysql_password
+        sync: false
+      - key: mysql_database
+        sync: false
+      - key: secret_key
+        generateValue: true
