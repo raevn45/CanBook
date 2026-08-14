@@ -18,8 +18,6 @@ DEFAULT_MENU = [
 ]
 
 LEGACY_MENU_NAMES = [
-    "chicken sandwich",
-    "veg sandwich",
     "cheese pizza",
     "french fries",
     "fresh juice",
@@ -132,11 +130,17 @@ def seed_and_migrate_menu():
         )
 
     added = 0
+    updated = 0
     for name, description, category, price in DEFAULT_MENU:
         cursor.execute("SELECT item_id FROM menu WHERE LOWER(item_name) = LOWER(%s) LIMIT 1", (name,))
         existing = cursor.fetchone()
         if existing:
-            cursor.execute("UPDATE menu SET available = TRUE WHERE item_id = %s", (existing[0],))
+            cursor.execute("""
+                UPDATE menu
+                SET description = %s, category = %s, price = %s, available = TRUE
+                WHERE item_id = %s
+            """, (description, category, price, existing[0]))
+            updated += 1
         else:
             cursor.execute("""
                 INSERT INTO menu (item_name, description, category, price, available)
@@ -147,7 +151,7 @@ def seed_and_migrate_menu():
     connection.commit()
     cursor.close()
     connection.close()
-    print(f"CanBook menu checked. Added {added} missing current item(s); legacy sample items were hidden without deleting history.")
+    print(f"CanBook menu checked. Added {added} and refreshed {updated} current item(s); legacy sample items were hidden without deleting history.")
 
 
 if __name__ == "__main__":
