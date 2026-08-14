@@ -7,6 +7,7 @@ import "./styles/global.css";
 import "./styles/app.css";
 import "./styles/interactions.css";
 import "./styles/motionui.css";
+import "./styles/staffui.css";
 
 if ("serviceWorker" in navigator && import.meta.env.PROD) {
   window.addEventListener("load", () => {
