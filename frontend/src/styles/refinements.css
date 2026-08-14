@@ -31,6 +31,8 @@
 .order-delete-confirm button { min-height: 29px; padding: 0 9px; border-radius: 999px; background: var(--ink); color: var(--paper); font: 9px var(--mono); text-transform: uppercase; }
 .order-delete-confirm button:hover { background: var(--coral); }
 .order-delete-confirm button:last-child { width: 29px; padding: 0; display: grid; place-items: center; background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.queue-delete-row { display: flex; justify-content: flex-end; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(23,23,22,.12); }
+.queue-delete-row .order-delete-button { width: 34px; height: 34px; }
 
 @media (max-width: 760px) {
   .analytics-view-switch { width: fit-content; }
@@ -39,4 +41,5 @@
   .student-signal-row { grid-template-columns: 1fr; margin-bottom: 30px; }
   .order-card-actions { width: 100%; justify-content: flex-start; }
   .order-delete-confirm { max-width: 100%; }
+  .queue-delete-row { justify-content: flex-start; }
 }
