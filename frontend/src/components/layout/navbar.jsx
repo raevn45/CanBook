@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { BarChart3, ClipboardList, Home, LogOut, Menu as MenuIcon, ShoppingBag, UtensilsCrossed } from "lucide-react";
 import { useAuth } from "../../context/authcontext";
 import { useCart } from "../../context/cartcontext";
+import InstallApp from "../pwa/installapp";
 
 const studentLinks = [
   { to: "/student", label: "Dashboard", icon: Home },
@@ -52,6 +53,7 @@ export default function Navbar() {
               {label === "Cart" && count > 0 && <span className="cart-count">{count}</span>}
             </Link>
           ))}
+          <InstallApp />
           <motion.button className="nav-logout" onClick={handleLogout} whileHover={{ y: -2 }} whileTap={{ scale: 0.95 }} title="Sign out">
             <LogOut size={15} />
             <span>logout</span>
@@ -71,6 +73,7 @@ export default function Navbar() {
             </Link>
           );
         })}
+        <InstallApp />
         <button type="button" onClick={handleLogout} aria-label="Sign out"><LogOut size={19} /><span>Sign out</span></button>
       </motion.nav>
     </>
