@@ -10,6 +10,7 @@ import "./styles/motionui.css";
 import "./styles/staffui.css";
 import "./styles/refinements.css";
 import "./styles/navbarfix.css";
+import "./styles/install-mobile-fix.css";
 
 if ("serviceWorker" in navigator && import.meta.env.PROD) {
   window.addEventListener("load", () => {
