@@ -1,4 +1,4 @@
-const CACHE_NAME = "canbook-shell-v1";
+const CACHE_NAME = "canbook-shell-v2";
 const SHELL = ["/", "/manifest.webmanifest", "/favicon.svg"];
 
 self.addEventListener("install", (event) => {
@@ -15,19 +15,21 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   const request = event.request;
-  if (request.method !== "GET" || new URL(request.url).origin !== self.location.origin) return;
+  const url = new URL(request.url);
+  if (request.method !== "GET" || url.origin !== self.location.origin) return;
+  if (url.pathname.startsWith("/api/")) return;
 
   if (request.destination === "document") {
-    event.respondWith(
-      fetch(request).catch(() => caches.match("/"))
-    );
+    event.respondWith(fetch(request).catch(() => caches.match("/")));
     return;
   }
 
   event.respondWith(
     caches.match(request).then((cached) => cached || fetch(request).then((response) => {
-      const copy = response.clone();
-      caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+      if (response.ok) {
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+      }
       return response;
     }))
   );
