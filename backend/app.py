@@ -29,12 +29,16 @@ app.config["SESSION_COOKIE_PATH"] = "/"
 
 CORS(app, supports_credentials=True, origins=allowed_origins)
 
+# Canonical API routes.
 app.register_blueprint(auth, url_prefix="/api/auth")
 app.register_blueprint(menu, url_prefix="/api/menu")
 app.register_blueprint(orders, url_prefix="/api/orders")
 app.register_blueprint(canteen, url_prefix="/api/canteen")
 
-# Compatibility prefix for an older deployed frontend that omitted /api.
+# Compatibility routes for the deployed frontend if its API base URL omits /api.
+app.register_blueprint(auth, url_prefix="/auth", name="auth_legacy")
+app.register_blueprint(menu, url_prefix="/menu", name="menu_legacy")
+app.register_blueprint(orders, url_prefix="/orders", name="orders_legacy")
 app.register_blueprint(canteen, url_prefix="/canteen", name="canteen_legacy")
 
 
