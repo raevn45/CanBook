@@ -6,6 +6,13 @@ import App from "./app.jsx";
 import "./styles/global.css";
 import "./styles/app.css";
 import "./styles/interactions.css";
+import "./styles/motionui.css";
+
+if ("serviceWorker" in navigator && import.meta.env.PROD) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
+  });
+}
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
