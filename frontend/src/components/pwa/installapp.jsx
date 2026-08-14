@@ -34,7 +34,7 @@ export default function InstallApp() {
   return (
     <>
       <button className="install-app-button" type="button" onClick={handleInstall} title="Install CanBook">
-        {installEvent ? <Download size={14} /> : <Smartphone size={14} />}
+        {installEvent ? <Download size={13} /> : <Smartphone size={13} />}
         <span>install app</span>
       </button>
       {showHelp && (
