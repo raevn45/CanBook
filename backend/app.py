@@ -31,6 +31,9 @@ app.register_blueprint(menu, url_prefix="/api/menu")
 app.register_blueprint(orders, url_prefix="/api/orders")
 app.register_blueprint(canteen, url_prefix="/api/canteen")
 
+# Compatibility prefix for an older deployed frontend that omitted /api.
+app.register_blueprint(canteen, url_prefix="/canteen", name="canteen_legacy")
+
 
 @app.get("/api/health")
 def health():
