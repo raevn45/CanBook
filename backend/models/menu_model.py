@@ -17,12 +17,7 @@ LEGACY_MENU_NAMES = {"cheese pizza", "french fries", "fresh juice", "chocolate c
 
 
 def sync_canonical_menu():
-    """Keep the live menu aligned with CanBook's canonical student menu.
-
-    Existing order history is never deleted. Legacy sample items are simply
-    hidden from new ordering, while the nine required items are inserted or
-    refreshed if a database is stale.
-    """
+    """Keep the live menu aligned when explicitly requested by setup/admin code."""
     for legacy_name in LEGACY_MENU_NAMES:
         execute_query(
             "UPDATE menu SET available = FALSE WHERE LOWER(item_name) = %s",
@@ -54,17 +49,18 @@ def sync_canonical_menu():
 
 
 def get_available_items():
-    sync_canonical_menu()
+    # Reads must be fast: do not run the nine-item synchronization routine on
+    # every menu request. The database is initialized with the canonical menu.
     return fetch_all("""
         SELECT *
         FROM menu
         WHERE available = TRUE
+          AND LOWER(item_name) NOT IN (%s, %s, %s, %s)
         ORDER BY category, item_name
-    """)
+    """, tuple(sorted(LEGACY_MENU_NAMES)))
 
 
 def get_all_items():
-    sync_canonical_menu()
     return fetch_all("""
         SELECT *
         FROM menu
