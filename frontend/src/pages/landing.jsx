@@ -23,9 +23,7 @@ export default function Landing() {
   }, []);
 
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      setFeaturedIndex((current) => (current + 1) % Math.max(items.length, 1));
-    }, 2600);
+    const timer = window.setInterval(() => setFeaturedIndex((current) => (current + 1) % Math.max(items.length, 1)), 2600);
     return () => window.clearInterval(timer);
   }, [items.length]);
 
@@ -53,11 +51,7 @@ export default function Landing() {
           <div className="collage-back">CAN<br />BOOK</div>
           <div className="order-ticket featured-ticket">
             <div className="ticket-top"><span>CANBOOK / LIVE MENU</span><span>LIVE</span></div>
-            <div className="ticket-main">
-              <small>WHAT'S GOOD TODAY</small>
-              <h2 key={featured.item_name}>{featured.item_name}</h2>
-              <div className="ticket-price">AED {Number(featured.price).toFixed(2)}</div>
-            </div>
+            <div className="ticket-main"><small>WHAT'S GOOD TODAY</small><h2 key={featured.item_name}>{featured.item_name}</h2><div className="ticket-price">AED {Number(featured.price).toFixed(2)}</div></div>
             <div className="ticket-line" />
             <div className="ticket-row"><span><CalendarDays size={15} /> School day</span><strong>PLAN</strong></div>
             <div className="ticket-row"><span><Clock3 size={15} /> Pickup window</span><strong>20 MIN</strong></div>
@@ -72,9 +66,7 @@ export default function Landing() {
 
       <section className="menu-showcase" id="menu">
         <div className="section-intro"><div><span className="section-number">01</span><h2>What's<br /><em>good</em> today?</h2></div><p>The same AED menu follows students from the homepage into ordering. The canteen can change availability without deleting order history.</p></div>
-        <div className="menu-wall">
-          {preview.map((item, index) => <Link to="/login" className={`menu-tile tile-${(index % 9) + 1}`} key={item.item_id}><span className="tile-index">{String(index + 1).padStart(2, "0")}</span><div><small>{item.category}</small><h3>{item.item_name}</h3></div><strong>AED {Number(item.price).toFixed(2)}</strong><ArrowUpRight className="tile-arrow" size={20} /></Link>)}
-        </div>
+        <div className="menu-wall">{preview.map((item, index) => <Link to="/login" className={`menu-tile tile-${(index % 9) + 1}`} key={item.item_id}><span className="tile-index">{String(index + 1).padStart(2, "0")}</span><div><small>{item.category}</small><h3>{item.item_name}</h3></div><strong>AED {Number(item.price).toFixed(2)}</strong><ArrowUpRight className="tile-arrow" size={20} /></Link>)}</div>
       </section>
 
       <section className="landing-pickup-band"><div><span className="section-number">02</span><h2>Pick the day.<br /><em>Pick the moment.</em></h2></div><div className="pickup-band-copy"><p>Once you're signed in, checkout gives you a full calendar and 20-minute pickup windows. No vague “later”. No guessing.</p><Link to="/login" className="hero-cta">Continue to CanBook <ArrowUpRight size={19} /></Link></div></section>
