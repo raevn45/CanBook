@@ -14,6 +14,10 @@ def get_available_items(): return fetch_all("SELECT * FROM menu WHERE available=
 def get_all_items(): return fetch_all("SELECT * FROM menu WHERE LOWER(item_name) NOT IN (%s,%s,%s,%s) ORDER BY available DESC,category,item_name",tuple(sorted(LEGACY_MENU_NAMES)))
 def get_item(item_id): return fetch_one("SELECT * FROM menu WHERE item_id=%s",(item_id,))
 def add_item(name,description,category,price): return execute_query("INSERT INTO menu (item_name,description,category,price) VALUES (%s,%s,%s,%s)",(name,description,category,price))
+def update_item(item_id,name,description,category,price):
+    if not get_item(item_id): return False,"menu item not found"
+    execute_query("UPDATE menu SET item_name=%s,description=%s,category=%s,price=%s WHERE item_id=%s",(name,description,category,price,item_id))
+    return True,"menu item updated"
 def update_item_availability(item_id,available): execute_query("UPDATE menu SET available=%s WHERE item_id=%s",(available,item_id))
 def delete_item(item_id):
     item=get_item(item_id)
