@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 
 const TILT_TARGETS = ".live-menu-card, .menu-tile, .order-card, .analytics-stat-grid article, .analytics-panel-new, .canteen-menu-row, .auth-panel, .order-ticket, .queue-card, .staff-command-card, .staff-panel, .order-detail-ticket, .detail-side-panel";
-const MAGNETIC_TARGETS = ".hero-cta, .hero-secondary, .giant-submit, .floating-cart, .ticket-button, .menu-add-button, .nav-pill, .nav-logout, .dashboard-refresh, .queue-open";
 
 export default function InteractiveExperience() {
   useEffect(() => {
@@ -31,8 +30,8 @@ export default function InteractiveExperience() {
         if (!rect.width || !rect.height) return;
         const x = (event.clientX - rect.left) / rect.width;
         const y = (event.clientY - rect.top) / rect.height;
-        target.style.setProperty("--tilt-x", `${((0.5 - y) * 5).toFixed(2)}deg`);
-        target.style.setProperty("--tilt-y", `${((x - 0.5) * 6).toFixed(2)}deg`);
+        target.style.setProperty("--tilt-x", `${((0.5 - y) * 2.5).toFixed(2)}deg`);
+        target.style.setProperty("--tilt-y", `${((x - 0.5) * 3).toFixed(2)}deg`);
         target.style.setProperty("--glow-x", `${(x * 100).toFixed(1)}%`);
         target.style.setProperty("--glow-y", `${(y * 100).toFixed(1)}%`);
       });
@@ -43,15 +42,6 @@ export default function InteractiveExperience() {
       if (target && !target.contains(event.relatedTarget)) resetTilt(target);
     };
 
-    const onClick = (event) => {
-      const target = event.target instanceof Element ? event.target.closest("button, a") : null;
-      if (!target || target.disabled) return;
-      target.classList.remove("is-pressed");
-      void target.offsetWidth;
-      target.classList.add("is-pressed");
-      window.setTimeout(() => target.classList.remove("is-pressed"), 260);
-    };
-
     const onScroll = () => {
       const max = document.documentElement.scrollHeight - window.innerHeight;
       root.style.setProperty("--scroll-progress", (max > 0 ? window.scrollY / max : 0).toFixed(4));
@@ -59,14 +49,12 @@ export default function InteractiveExperience() {
 
     window.addEventListener("pointermove", onMove, { passive: true });
     document.addEventListener("pointerout", onPointerOut, { passive: true });
-    document.addEventListener("click", onClick);
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
 
     return () => {
       window.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerout", onPointerOut);
-      document.removeEventListener("click", onClick);
       window.removeEventListener("scroll", onScroll);
       if (frame) cancelAnimationFrame(frame);
     };
