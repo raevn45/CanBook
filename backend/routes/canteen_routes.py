@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from database import fetch_all, fetch_one, execute_query
-from models.menu_model import get_all_items, add_item, update_item_availability, delete_item
+from models.menu_model import get_all_items, add_item, update_item, update_item_availability, delete_item
 from utils.auth_utils import role_required
 
 canteen=Blueprint("canteen",__name__)
@@ -46,10 +46,19 @@ def create_menu_item():
  return jsonify({"message":"item created","item_id":add_item(name,str(data.get("description","")).strip(),category,price)}),201
 @canteen.patch("/menu/<int:item_id>")
 @role_required("canteen")
-def toggle_menu_item(item_id):
+def update_menu_item(item_id):
  data=request.get_json() or {}
- if "available" not in data or not isinstance(data["available"],bool):return jsonify({"error":"available must be a boolean"}),400
- update_item_availability(item_id,data["available"]); return jsonify({"message":"menu item updated"})
+ if "available" in data:
+  if not isinstance(data["available"],bool): return jsonify({"error":"available must be a boolean"}),400
+  update_item_availability(item_id,data["available"])
+  return jsonify({"message":"menu item availability updated"})
+ name=str(data.get("item_name","")).strip(); category=str(data.get("category","")).strip()
+ if not name or not category:return jsonify({"error":"item_name and category are required"}),400
+ try: price=float(data.get("price"))
+ except (TypeError,ValueError):return jsonify({"error":"price must be a number"}),400
+ if price<0:return jsonify({"error":"price must be non-negative"}),400
+ ok,message=update_item(item_id,name,str(data.get("description","")).strip(),category,price)
+ return (jsonify({"message":message}),200) if ok else (jsonify({"error":message}),404)
 @canteen.delete("/menu/<int:item_id>")
 @role_required("canteen")
 def remove_menu_item(item_id):
