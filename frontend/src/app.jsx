@@ -5,6 +5,7 @@ import InteractiveExperience from "./components/effects/interactiveexperience";
 import "./styles/staff-ui.css";
 import "./styles/force-menu-delete.css";
 import "./styles/menu-edit.css";
+import "./styles/ui-recovery.css";
 
 function AppShell() {
   const location = useLocation();
